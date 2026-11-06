@@ -31,6 +31,8 @@ Open either HTML version locally to preview it. Images and contact links work wi
 - On load, a swarm of small cursor "agents" (18 on desktop, 10 on phones) gathers around a scanning tile, then spreads across the page.
 - Every element starts as a wireframe placeholder (grey text bars, dashed boxes, X-boxes for images). As you scroll, an agent claims each piece: it drags out a coloured selection box with a live size badge, types text in behind a caret, snaps headings into place from a ghosted copy, and flashes alignment guides.
 - A control bar at the bottom shows agents and built layers, and has **Tour** (auto-scroll that waits for each screen to finish building), a **1×/2×/4×** speed switch and **×** to stop the effects. This layer lives in `swarm.js`.
+- Cursors only appear while working: each launches from the control bar, builds its piece, then fades out. At the bottom of the page all of them gather into a ring, spin like a wheel around a check mark, burst outward and fade away.
+- The Approach diagram is live: a spinning arc and tick ring around the brand core, pulse waves, satellites on the orbits, curved connectors with data flowing in, node cards with real figures, and a LIVE readout that pings one system at a time.
 - Returning visitors (same browser) skip the scanning intro and get a 4× build. Nothing is sent anywhere; one flag is kept in the visitor's browser storage.
 - The studio canvas assembles a real case note (10% lower ACoS, +20% conversion) with the historical ads dashboard. Click a Layers row or a step to jump to it; once built, drag the portrait with a mouse and it snaps back.
 

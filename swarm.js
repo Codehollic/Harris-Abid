@@ -55,7 +55,7 @@ html.classList.add('swarm-on');
 /* ---------- Overlay, agents, HUD ---------- */
 const ov=document.createElement('div');ov.id='swarm';ov.setAttribute('aria-hidden','true');
 const tile=document.createElement('div');tile.className='sw-tile';
-tile.innerHTML='<svg viewBox="0 0 24 24" fill="none"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4" stroke="currentColor" stroke-width="1.6"/><path d="M4 12h16" stroke="currentColor" stroke-width="1.6" class="sw-scanline"/></svg>';
+tile.innerHTML='<svg class="sw-scan-ic" viewBox="0 0 24 24" fill="none"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4" stroke="currentColor" stroke-width="1.6"/><path d="M4 12h16" stroke="currentColor" stroke-width="1.6" class="sw-scanline"/></svg><svg class="sw-done-ic" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 ov.append(tile);
 const agents=Array.from({length:AGENT_COUNT},(_,i)=>{
 const color=COLORS[i%COLORS.length],el=document.createElement('div');
@@ -63,7 +63,7 @@ el.className='sw-agent';
 el.style.setProperty('--c',color);
 el.innerHTML=`<svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22L2 2Z" fill="${color}" stroke="#0c0f0c" stroke-width="1.3" stroke-linejoin="round"/></svg><span>${NAMES[i%NAMES.length]}</span>`;
 ov.append(el);
-return{el,color,x:innerWidth/2,y:innerHeight/2,tx:innerWidth/2,ty:innerHeight/2,job:null,nextWander:0,lastPuff:0,phase:i*2.399,alpha:-1};
+return{el,svg:el.firstElementChild,color,x:innerWidth/2,y:innerHeight/2,tx:innerWidth/2,ty:innerHeight/2,job:null,lastPuff:0,phase:i*2.399,alpha:-1,gone:false,leaveAt:0,rot:0};
 });
 body.append(ov);
 
@@ -80,7 +80,7 @@ const tourBtn=hud.querySelector('[data-sw="tour"]'),speedBtn=hud.querySelector('
 
 /* ---------- State ---------- */
 let mode='scan',scanStart=performance.now(),last=performance.now(),speed=1,tour=false,tourAcc=0;
-let doneCount=0,shownCount=-1,allDoneAt=0,lastWorkAt=performance.now();
+let doneCount=0,shownCount=-1,allDoneAt=0,finaleAt=0,finaleDone=false;
 const jobs=[];
 const theatres=[...document.querySelectorAll('.build-studio,.market-stage')];
 const isPaused=()=>body.classList.contains('effects-paused');
@@ -89,13 +89,13 @@ const io=new IntersectionObserver(entries=>{for(const e of entries){const L=byEl
 
 function hideAll(){layers.forEach(L=>{L.state='wait';L.el.classList.add('sw-wait');});}
 function startScan(){
-mode='scan';scanStart=performance.now();doneCount=0;allDoneAt=0;ov.classList.remove('off');
+mode='scan';scanStart=performance.now();doneCount=0;allDoneAt=0;finaleDone=false;finaleAt=0;ov.classList.remove('off','finale');tile.style.opacity='';agents.forEach(a=>{a.gone=false;a.leaveAt=0;});
 html.classList.add('swarm-scanning');ov.classList.add('scanning');hud.classList.remove('done','hidden');hud.classList.add('scanning');
 hudAgents.textContent='Scanning page…';hudCount.textContent='';shownCount=-1;
 }
 let welcomeUntil=0,returning=false;try{returning=localStorage.getItem('ha-swarm-seen')==='1';localStorage.setItem('ha-swarm-seen','1');}catch(e){}
 hideAll();layers.forEach(L=>io.observe(L.el));
-if(returning){speed=4;speedBtn.textContent='4×';speedBtn.setAttribute('aria-label','Build speed: 4 times');mode='run';welcomeUntil=performance.now()+2600;hudAgents.textContent='Welcome back';hudCount.textContent='fast build';agents.forEach(a=>{a.x=a.tx=rand(30,innerWidth-40);a.y=a.ty=rand(110,innerHeight-70);});}
+if(returning){speed=4;speedBtn.textContent='4×';speedBtn.setAttribute('aria-label','Build speed: 4 times');mode='run';welcomeUntil=performance.now()+2600;hudAgents.textContent='Welcome back';hudCount.textContent='fast build';agents.forEach(a=>{a.gone=true;a.alpha=0;a.el.style.opacity='0';});}
 else startScan();
 
 /* ---------- Helpers ---------- */
@@ -107,10 +107,14 @@ const p=document.createElement('span');p.className='sw-plus';p.textContent='+';p
 p.style.transform=`translate3d(${a.x+rand(-4,4)}px,${a.y+rand(-4,4)}px,0)`;ov.append(p);
 p.animate([{opacity:.9,scale:'1'},{opacity:0,scale:'.3'}],{duration:650,easing:'ease-out'}).onfinish=()=>p.remove();
 }
+function launch(a){
+const d=hud.getBoundingClientRect(),ok=d.width&&!hud.classList.contains('done');
+a.x=ok?d.left+d.width*rand(.15,.85):innerWidth/2+rand(-60,60);a.y=ok?d.top+4:innerHeight-30;a.gone=false;a.leaveAt=0;
+}
 function finish(job){
 const{L}=job;L.state='done';L.el.classList.remove('sw-wait');L.el.style.clipPath='';L.el.style.textShadow='';
 job.parts.forEach(p=>p.remove());if(L.ph){L.ph.remove();L.ph=null;}
-if(job.agent){job.agent.job=null;job.agent.nextWander=0;}
+if(job.agent){job.agent.job=null;job.agent.leaveAt=performance.now();}
 jobs.splice(jobs.indexOf(job),1);doneCount++;
 }
 function finishAll(){
@@ -121,8 +125,10 @@ html.classList.remove('swarm-scanning');ov.classList.remove('scanning');
 
 function claim(L,now){
 let best=null,bd=Infinity;const r=L.rect;
-for(const a of agents){if(a.job)continue;const d=Math.hypot(a.x-r.left,a.y-r.top);if(d<bd){bd=d;best=a;}}
+for(const a of agents){if(a.job)continue;const d=a.gone?1e6+Math.random():Math.hypot(a.x-r.left,a.y-r.top);if(d<bd){bd=d;best=a;}}
 if(!best)return false;
+if(best.gone)launch(best);
+best.leaveAt=0;
 const cs=getComputedStyle(L.el),fs=parseFloat(cs.fontSize)||16;
 const job={L,agent:best,claimedAt:now,t0:0,parts:[],
 lh:parseFloat(cs.lineHeight)||fs*1.2,pad:[parseFloat(cs.paddingTop)||0,parseFloat(cs.paddingRight)||0,parseFloat(cs.paddingBottom)||0,parseFloat(cs.paddingLeft)||0],
@@ -180,6 +186,17 @@ if(job.gv){const g=e<we-120?0:e<se?1-clamp((e-we)/TIMING.settle):0;
 place(job.gv,r.left,0);place(job.gh,0,r.top);job.gv.style.opacity=job.gh.style.opacity=(g*.9).toFixed(3);}
 }
 
+/* ---------- Finale: gather into a ring, spin like a wheel, burst and fade ---------- */
+const FIN={gather:700,spin:2100,end:2900};
+function startFinale(now){
+finaleDone=true;finaleAt=now;mode='finale';
+while(jobs.length)finish(jobs[0]);
+layers.forEach(L=>{if(L.state!=='done'){L.state='done';doneCount++;}L.el.classList.remove('sw-wait');if(L.ph){L.ph.remove();L.ph=null;}});
+agents.forEach(a=>{if(a.gone)launch(a);a.leaveAt=0;a.burst=false;});
+ov.classList.add('finale');
+hudAgents.textContent='All the moving parts.';hudCount.textContent='Together.';hudBar.style.transform='scaleX(1)';shownCount=doneCount;welcomeUntil=now+FIN.end+2200;
+}
+
 /* ---------- Frame ---------- */
 function frame(now){
 const dt=Math.min(48,now-last);last=now;
@@ -193,8 +210,17 @@ hudBar.style.transform=`scaleX(${p})`;
 agents.forEach((a,i)=>{const ang=a.phase+now*.0017*(1+(i%3)*.35),rad=30+(i%4)*14+Math.sin(now*.004+i)*5;a.tx=cx+Math.cos(ang)*rad;a.ty=cy+Math.sin(ang)*rad*.8;});
 if(p>=1){
 mode='run';html.classList.remove('swarm-scanning');ov.classList.remove('scanning');hud.classList.remove('scanning');
-agents.forEach(a=>{const ang=rand(0,Math.PI*2),d=rand(.25,.55)*Math.min(W,H);a.tx=cx+Math.cos(ang)*d*1.4;a.ty=cy+Math.sin(ang)*d;a.nextWander=now+rand(500,1200);a.burst=true;});
+agents.forEach(a=>{const ang=rand(0,Math.PI*2),d=rand(.25,.55)*Math.min(W,H);a.tx=cx+Math.cos(ang)*d*1.4;a.ty=cy+Math.sin(ang)*d;a.burst=true;a.leaveAt=now+450;});
 }
+}
+
+if(mode==='finale'){
+const t=now-finaleAt,n=agents.length,R=Math.min(W,H)*(small?.2:.13),spin=Math.pow(t/1000,2)*2.4;
+const burst=easeOut((t-FIN.spin)/(FIN.end-FIN.spin)),pulse=1+.1*Math.sin(t*.009);
+agents.forEach((a,i)=>{const th=i/n*Math.PI*2+spin,rad=R*pulse+burst*Math.max(W,H)*.65;
+a.tx=cx+Math.cos(th)*rad;a.ty=cy+Math.sin(th)*rad;a.rot=th*180/Math.PI-135;});
+tile.style.opacity=String(t<FIN.gather?t/FIN.gather:1-burst);
+if(t>=FIN.end){mode='run';ov.classList.remove('finale');tile.style.opacity='';agents.forEach(a=>{a.gone=true;a.alpha=0;a.rot=0;a.el.style.opacity='0';a.svg.style.transform='';});}
 }
 
 if(mode==='run'){
@@ -203,7 +229,6 @@ const live=[];
 for(const L of layers){if(L.state!=='done'&&(L.inView||L.state==='build')){L.rect=L.el.getBoundingClientRect();live.push(L);}else if(L.ph){L.ph.style.opacity='0';}}
 // Claim visible work in document order
 const queue=live.filter(L=>L.state==='wait'&&L.inView&&L.rect.bottom>(L.fixed?0:70)&&L.rect.top<H-40);
-if(queue.length)lastWorkAt=now;
 for(const L of queue){if(jobs.length>=MAX_ACTIVE)break;if(L.parent&&L.parent.state!=='done')continue;if(!claim(L,now))break;}
 const boost=1+queue.length/7;
 // Wireframe placeholders for pieces still waiting
@@ -213,12 +238,11 @@ if(!L.ph){L.ph=makeEl('sw-ph '+(L.img?'b x':L.kind==='box'?'b':'t'));if(L.img)L.
 const r=L.rect;place(L.ph,r.left,r.top,r.width,r.height);L.ph.style.opacity='1';
 }
 for(let i=jobs.length-1;i>=0;i--)runJob(jobs[i],now,boost);
-// Idle agents drift around the viewport
-for(const a of agents){if(a.job)continue;if(now>a.nextWander){a.tx=rand(30,W-40);a.ty=rand(110,H-70);a.nextWander=now+rand(1400,3600);}}
 if(doneCount>=layers.length&&!allDoneAt)allDoneAt=now;
+if(!finaleDone&&innerHeight+scrollY>=document.documentElement.scrollHeight-40)startFinale(now);
 // HUD
 if(doneCount!==shownCount&&now>welcomeUntil){shownCount=doneCount;hudAgents.textContent=`${AGENT_COUNT} agents live`;hudCount.textContent=`${doneCount} / ${layers.length} layers`;hudBar.style.transform=`scaleX(${doneCount/layers.length})`;}
-if(allDoneAt&&now-allDoneAt>2600&&!tour)hud.classList.add('done');
+if(finaleAt&&now-finaleAt>FIN.end+2200&&!tour)hud.classList.add('done');
 // Tour: auto-scroll, pausing while pieces on screen are still being built
 if(tour){
 const busy=queue.length+jobs.filter(j=>j.L.inView&&!j.L.el.closest('.header')).length;
@@ -228,16 +252,20 @@ if(innerHeight+scrollY>=document.documentElement.scrollHeight-2)setTour(false);
 }
 
 // Move agents (hidden while a scroll set-piece with its own cursors fills the screen)
-const idleFor=now-lastWorkAt,Hh=innerHeight,theatre=mode==='run'&&theatres.some(s=>{const r=s.getBoundingClientRect();return r.top<Hh*.35&&r.bottom>Hh*.65;});
+const Hh=innerHeight,fin=mode==='finale',theatre=mode==='run'&&theatres.some(s=>{const r=s.getBoundingClientRect();return r.top<Hh*.35&&r.bottom>Hh*.65;});
 agents.forEach((a,i)=>{
-const fast=a.job||mode==='scan'||a.burst,k=1-Math.pow(fast?.8:.965,dt/16);
-const jx=a.job?0:Math.sin(now*.0011+a.phase)*.35,jy=a.job?0:Math.cos(now*.0013+a.phase)*.35;
-const px=a.x,py=a.y;a.x+=(a.tx-a.x)*k+jx;a.y+=(a.ty-a.y)*k+jy;
+if(a.gone&&!fin)return;
+const t=now-finaleAt,k=fin?(t<FIN.gather?1-Math.pow(.86,dt/16):1):1-Math.pow(.8,dt/16);
+const px=a.x,py=a.y;a.x+=(a.tx-a.x)*k;a.y+=(a.ty-a.y)*k;
 const v=Math.hypot(a.x-px,a.y-py);if(a.burst&&v<1.5)a.burst=false;
 if(!theatre&&v>5&&now-a.lastPuff>(small?140:80)){a.lastPuff=now;puff(a);}
-a.el.style.transform=`translate3d(${(a.x-2).toFixed(1)}px,${(a.y-2).toFixed(1)}px,0)`;
-const alpha=theatre?0:allDoneAt&&!tour?clamp(1-(now-allDoneAt-1200)/900):a.job||mode==='scan'||idleFor<3500?1:.4;
-if(Math.abs(alpha-a.alpha)>.01){a.alpha=alpha;a.el.style.opacity=alpha.toFixed(2);}
+const fade=a.job||mode==='scan'?1:a.leaveAt?clamp(1-(now-a.leaveAt)/380):fin?1:0;
+const alpha=fin?clamp(1-(t-FIN.spin)/(FIN.end-FIN.spin)):theatre?0:fade;
+if(!fin&&!a.job&&mode!=='scan'&&a.leaveAt&&now-a.leaveAt>380){a.gone=true;a.leaveAt=0;}
+const s=fin?1.3:a.job||mode==='scan'?1:.55+.45*fade;
+a.el.style.transform=`translate3d(${(a.x-2).toFixed(1)}px,${(a.y-2).toFixed(1)}px,0) scale(${s.toFixed(3)})`;
+if(fin)a.svg.style.transform=`rotate(${a.rot.toFixed(1)}deg)`;
+if(Math.abs(alpha-a.alpha)>.01||alpha===0&&a.alpha!==0){a.alpha=alpha;a.el.style.opacity=alpha.toFixed(2);}
 });
 requestAnimationFrame(frame);
 }
