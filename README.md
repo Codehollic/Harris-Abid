@@ -14,11 +14,15 @@ A complete personal-brand website with a scroll-driven build sequence, an editor
 
 ## Editable project
 
-Upload `index.html`, `styles.css`, `script.js`, `.nojekyll`, and the **assets/** folder together if you prefer separate, easily editable files. Keep their relative paths intact. The standalone file is generated from these files; it does not need to be uploaded alongside them.
+Upload `index.html`, `styles.css`, `script.js`, `swarm.js`, `.nojekyll`, and the **assets/** folder together if you prefer separate, easily editable files. Keep their relative paths intact. The standalone file is generated from these files; it does not need to be uploaded alongside them.
 
 Open either HTML version locally to preview it. Images and contact links work without a server. Browser support for some features may vary; modern Chrome, Edge, Safari and Firefox are the intended targets.
 
 ## What the animation does
+
+- On load, a swarm of small cursor "agents" (18 on desktop, 10 on phones) gathers around a scanning tile, then spreads across the page.
+- Every element starts as a wireframe placeholder (grey text bars, dashed boxes, X-boxes for images). As you scroll, an agent claims each piece: it drags out a coloured selection box with a live size badge, types text in behind a caret, snaps headings into place from a ghosted copy, and flashes alignment guides.
+- A control bar at the bottom shows agents and built layers, and has **Tour** (auto-scroll that waits for each screen to finish building), a **1×/2×/4×** speed switch and **×** to stop the effects. This layer lives in `swarm.js`.
 
 - A title is revealed with a caret, then its selection frame is adjusted.
 - The live canvas writes a title character by character as you scroll.

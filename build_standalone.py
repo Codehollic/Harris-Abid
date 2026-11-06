@@ -10,7 +10,8 @@ html = html.replace(
     '<link rel="stylesheet" href="styles.css"><script src="script.js" defer></script>',
     '<style>' + (root / 'styles.css').read_text(encoding='utf-8') + '</style>'
 )
-html = html.replace('</body>', '<script>' + (root / 'script.js').read_text(encoding='utf-8') + '</script></body>')
+html = html.replace('<script src="swarm.js" defer></script>', '')
+html = html.replace('</body>', '<script>' + (root / 'script.js').read_text(encoding='utf-8') + '</script><script>' + (root / 'swarm.js').read_text(encoding='utf-8') + '</script></body>')
 for image in sorted((root / 'assets').iterdir()):
     if image.is_file() and image.suffix.lower() in {'.png', '.webp', '.jpg', '.jpeg'}:
         mime = mimetypes.guess_type(image.name)[0] or 'application/octet-stream'
