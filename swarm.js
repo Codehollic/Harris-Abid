@@ -82,13 +82,14 @@ const tourBtn=hud.querySelector('[data-sw="tour"]'),speedBtn=hud.querySelector('
 let mode='scan',scanStart=performance.now(),last=performance.now(),speed=1,tour=false,tourAcc=0;
 let doneCount=0,shownCount=-1,allDoneAt=0,lastWorkAt=performance.now();
 const jobs=[];
+const theatres=[...document.querySelectorAll('.build-studio,.market-stage')];
 const isPaused=()=>body.classList.contains('effects-paused');
 
 const io=new IntersectionObserver(entries=>{for(const e of entries){const L=byEl.get(e.target);if(L)L.inView=e.isIntersecting;}},{rootMargin:'0px 0px -6% 0px'});
 
 function hideAll(){layers.forEach(L=>{L.state='wait';L.el.classList.add('sw-wait');});}
 function startScan(){
-mode='scan';scanStart=performance.now();doneCount=0;allDoneAt=0;
+mode='scan';scanStart=performance.now();doneCount=0;allDoneAt=0;ov.classList.remove('off');
 html.classList.add('swarm-scanning');ov.classList.add('scanning');hud.classList.remove('done','hidden');hud.classList.add('scanning');
 hudAgents.textContent='Scanning page…';hudCount.textContent='';shownCount=-1;
 }
@@ -179,7 +180,7 @@ place(job.gv,r.left,0);place(job.gh,0,r.top);job.gv.style.opacity=job.gh.style.o
 /* ---------- Frame ---------- */
 function frame(now){
 const dt=Math.min(48,now-last);last=now;
-if(isPaused()){if(mode!=='off'){finishAll();mode='off';tour=false;tourBtn.setAttribute('aria-pressed','false');tourBtn.textContent='Tour';hud.classList.add('done');}requestAnimationFrame(frame);return;}
+if(isPaused()){if(mode!=='off'){finishAll();mode='off';ov.classList.add('off');tour=false;tourBtn.setAttribute('aria-pressed','false');tourBtn.textContent='Tour';hud.classList.add('done');}requestAnimationFrame(frame);return;}
 if(mode==='off'){requestAnimationFrame(frame);return;}
 const W=innerWidth,H=innerHeight,cx=W/2,cy=H/2;
 
@@ -223,8 +224,8 @@ if(innerHeight+scrollY>=document.documentElement.scrollHeight-2)setTour(false);
 }
 }
 
-// Move agents
-const idleFor=now-lastWorkAt;
+// Move agents (hidden while a scroll set-piece with its own cursors fills the screen)
+const idleFor=now-lastWorkAt,Hh=innerHeight,theatre=mode==='run'&&theatres.some(s=>{const r=s.getBoundingClientRect();return r.top<Hh*.35&&r.bottom>Hh*.65;});
 agents.forEach((a,i)=>{
 const fast=a.job||mode==='scan'||a.burst,k=1-Math.pow(fast?.8:.965,dt/16);
 const jx=a.job?0:Math.sin(now*.0011+a.phase)*.35,jy=a.job?0:Math.cos(now*.0013+a.phase)*.35;
@@ -232,7 +233,7 @@ const px=a.x,py=a.y;a.x+=(a.tx-a.x)*k+jx;a.y+=(a.ty-a.y)*k+jy;
 const v=Math.hypot(a.x-px,a.y-py);if(a.burst&&v<1.5)a.burst=false;
 if(v>5&&now-a.lastPuff>(small?140:80)){a.lastPuff=now;puff(a);}
 a.el.style.transform=`translate3d(${(a.x-2).toFixed(1)}px,${(a.y-2).toFixed(1)}px,0)`;
-const alpha=allDoneAt&&!tour?clamp(1-(now-allDoneAt-1200)/900):a.job||mode==='scan'||idleFor<3500?1:.4;
+const alpha=theatre?0:allDoneAt&&!tour?clamp(1-(now-allDoneAt-1200)/900):a.job||mode==='scan'||idleFor<3500?1:.4;
 if(Math.abs(alpha-a.alpha)>.01){a.alpha=alpha;a.el.style.opacity=alpha.toFixed(2);}
 });
 requestAnimationFrame(frame);

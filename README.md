@@ -25,6 +25,7 @@ Open either HTML version locally to preview it. Images and contact links work wi
 - A control bar at the bottom shows agents and built layers, and has **Tour** (auto-scroll that waits for each screen to finish building), a **1×/2×/4×** speed switch and **×** to stop the effects. This layer lives in `swarm.js`.
 
 - A title is revealed with a caret, then its selection frame is adjusted.
+- The "Watch the pieces" studio is a design-tool workspace: toolbar, Layers panel, rulers, a labelled artboard, a live Inspector (position, size, type, constraints, editing agent) and pink spacing redlines, with a four-step progress stepper underneath.
 - The live canvas writes a title character by character as you scroll.
 - A cursor places and resizes the portrait from its corner, with snapping guides and size labels.
 - A work screenshot moves into position while an arrow draws onto the canvas.

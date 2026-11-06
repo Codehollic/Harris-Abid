@@ -46,6 +46,45 @@ layoutCursor.style.transform=`translate(${clamp(x,15,width-20)}px,${y}px)`;
 layoutCursor.querySelector('span').textContent=p<.46?'LAYOUT / PLACING':p<.73?'LAYOUT / RESIZING':'PROOF / ALIGNING';
 $('#canvas-state').textContent=settled||p>.96?'CONNECTED. READY FOR WHAT’S NEXT.':['WRITING THE STORY','PLACING THE PORTRAIT','REFINING THE DETAILS','CONNECTING THE EVIDENCE'][step];
 $('.studio-scroll-track i').style.transform=`scaleX(${p})`;
+updateChrome(p,settled,step,{pw,ph,px,py,scale,dx,dy,proofX,proofY,proofW,proof,titleX,titleY,titleWidth,fontSize,lineHeight});
+}
+
+// Workspace chrome around the studio canvas: layers, rulers, inspector, measurements and stepper.
+const chrome={tools:$$('.tool'),layers:$$('[data-layer]'),rx:$('.ruler-x i'),ry:$('.ruler-y i'),ix:$('#insp-x'),iy:$('#insp-y'),iw:$('#insp-w'),ih:$('#insp-h'),il:$('#insp-layer'),kl:$('#insp-kind-label'),k1:$('#insp-kind'),k2:$('#insp-kind-2'),con:$('#insp-con'),ct:$('#insp-con-text'),ad:$('#insp-agent-dot'),an:$('#insp-agent'),mv:$('.measure-v'),mh:$('.measure-h'),size:$('#artboard-size'),copy:$('.canvas-copy'),steps:$$('.build-steps li')};
+const setText=(el,v)=>{if(el&&el.textContent!==v)el.textContent=v;};
+const AGENT={title:['Copy agent','#ff9f80'],portrait:['Layout agent','#4f8cff'],proof:['Layout agent','#4f8cff']};
+const CON={title:['Left · Top','left:5px;top:5px;width:12px;height:2px'],portrait:['Right · Top','right:5px;top:5px;width:12px;height:2px'],proof:['Left · Bottom','left:5px;bottom:5px;width:12px;height:2px'],frame:['Scale · Scale','left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;background:transparent;outline:1.5px solid #4f8cff']};
+let lastActive='';
+function updateChrome(p,settled,step,g){
+if(!chrome.ix)return;
+const W=canvas.clientWidth,H=canvas.clientHeight,S=1280/Math.max(1,W),u=v=>String(Math.round(v*S));
+const done=settled||p>.96,active=done?'frame':step===0?'title':step===3?'proof':'portrait';
+let box;
+if(active==='title')box={x:g.titleX,y:g.titleY,w:g.titleWidth,h:canvasTitle.offsetHeight};
+else if(active==='portrait')box={x:g.px+g.pw*(1-g.scale)+g.dx,y:g.py+g.dy,w:g.pw*g.scale,h:g.ph*g.scale};
+else if(active==='proof')box={x:g.proofX,y:g.proofY+(1-g.proof)*30,w:g.proofW,h:canvasProof.offsetHeight};
+else box={x:0,y:0,w:W,h:H};
+setText(chrome.ix,u(box.x));setText(chrome.iy,u(box.y));setText(chrome.iw,u(box.w));setText(chrome.ih,u(box.h));setText(chrome.size,`1280 × ${u(H)}`);
+const ox=canvas.offsetLeft-18,oy=canvas.offsetTop-18,band=active!=='frame';
+chrome.rx.style.cssText=band?`left:${ox+box.x}px;width:${box.w}px`:'width:0';chrome.ry.style.cssText=band?`top:${oy+box.y}px;height:${box.h}px`:'height:0';
+if(active==='title')setText(chrome.k2,`${u(g.fontSize)} / ${u(g.lineHeight)} · −1.8`);
+else if(active==='portrait')setText(chrome.k2,`Scale ${Math.round(g.scale*100)}% · Radius 3`);
+if(active!==lastActive){lastActive=active;
+setText(chrome.il,{title:'Title',portrait:'Portrait',proof:'Proof / Ads dashboard',frame:'Hero / Desktop'}[active]);
+setText(chrome.kl,{title:'Typography',portrait:'Fill',proof:'Effects',frame:'Layout'}[active]);
+setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Image · Cover',proof:'Drop shadow · 0 14 34',frame:'Auto layout · 12 cols'}[active]);
+if(active==='proof')setText(chrome.k2,'Radius 6 · Clip content');if(active==='frame')setText(chrome.k2,'Margin 32 · Gutter 24');
+const[ct,css]=CON[active];setText(chrome.ct,ct);chrome.con.style.cssText=css;
+const ag=AGENT[active]||['All agents','#88d9ba'];setText(chrome.an,ag[0]);chrome.ad.style.background=ag[1];
+chrome.tools.forEach(t=>t.classList.toggle('is-on',t.dataset.tool===(done?'move':['text','image','scale','move'][step])));
+}
+const pending={title:p<.01&&!settled,portrait:p<.25&&!settled,proof:p<.73&&!settled,measure:p<.46&&!settled};
+chrome.layers.forEach(li=>{const k=li.dataset.layer;li.classList.toggle('is-pending',!!pending[k]);li.classList.toggle('is-active',k===active||(k==='measure'&&!done&&p>=.46&&p<.73));li.style.setProperty('--lc',(AGENT[k]||AGENT.portrait)[1]);});
+// Redlines: portrait to artboard edge while refining, copy to proof while connecting
+const showH=!settled&&p>=.46&&p<.73,showV=!settled&&p>=.76&&p<.97&&(g.proofY+(1-g.proof)*30)-(chrome.copy.offsetTop+chrome.copy.offsetHeight)>6;
+if(showH){const right=g.px+g.pw+g.dx,y=g.py+g.dy+g.ph*g.scale*.5;chrome.mh.style.cssText=`left:${right}px;top:${y}px;width:${Math.max(0,W-right)}px;opacity:1`;setText(chrome.mh.firstChild,u(W-right));}else chrome.mh.style.opacity='0';
+if(showV){const top=chrome.copy.offsetTop+chrome.copy.offsetHeight,bot=g.proofY+(1-g.proof)*30;chrome.mv.style.cssText=`left:${g.proofX+28}px;top:${top}px;height:${Math.max(0,bot-top)}px;opacity:1`;setText(chrome.mv.firstChild,u(bot-top));}else chrome.mv.style.opacity='0';
+const b=[0,.25,.46,.73,1];chrome.steps.forEach((li,i)=>li.style.setProperty('--fill',settled?1:clamp((p-b[i])/(b[i+1]-b[i])).toFixed(3)));
 }
 function updateMarket(p,settled=false){
 const mobile=innerWidth<=700,spread=mobile?Math.min(60,(market.clientWidth-220)/2):innerWidth<=900?205:260;
