@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Rebuild the portable one-file website from its editable source files."""
 import base64
+import re
 from pathlib import Path
 import mimetypes
 
 root = Path(__file__).resolve().parent
 html = (root / 'index.html').read_text(encoding='utf-8')
+# One embedded copy per image: drop the preload hint and responsive variants.
+html = re.sub(r'<link rel="preload" as="image"[^>]*>', '', html)
+html = re.sub(r' (srcset|sizes)="[^"]*"', '', html)
 html = html.replace(
     '<link rel="stylesheet" href="styles.css"><script src="script.js" defer></script>',
     '<style>' + (root / 'styles.css').read_text(encoding='utf-8') + '</style>'

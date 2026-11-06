@@ -93,7 +93,10 @@ mode='scan';scanStart=performance.now();doneCount=0;allDoneAt=0;ov.classList.rem
 html.classList.add('swarm-scanning');ov.classList.add('scanning');hud.classList.remove('done','hidden');hud.classList.add('scanning');
 hudAgents.textContent='Scanning page…';hudCount.textContent='';shownCount=-1;
 }
-hideAll();layers.forEach(L=>io.observe(L.el));startScan();
+let welcomeUntil=0,returning=false;try{returning=localStorage.getItem('ha-swarm-seen')==='1';localStorage.setItem('ha-swarm-seen','1');}catch(e){}
+hideAll();layers.forEach(L=>io.observe(L.el));
+if(returning){speed=4;speedBtn.textContent='4×';speedBtn.setAttribute('aria-label','Build speed: 4 times');mode='run';welcomeUntil=performance.now()+2600;hudAgents.textContent='Welcome back';hudCount.textContent='fast build';agents.forEach(a=>{a.x=a.tx=rand(30,innerWidth-40);a.y=a.ty=rand(110,innerHeight-70);});}
+else startScan();
 
 /* ---------- Helpers ---------- */
 function makeEl(cls,html){const d=document.createElement('div');d.className=cls;if(html)d.innerHTML=html;ov.append(d);return d;}
@@ -214,7 +217,7 @@ for(let i=jobs.length-1;i>=0;i--)runJob(jobs[i],now,boost);
 for(const a of agents){if(a.job)continue;if(now>a.nextWander){a.tx=rand(30,W-40);a.ty=rand(110,H-70);a.nextWander=now+rand(1400,3600);}}
 if(doneCount>=layers.length&&!allDoneAt)allDoneAt=now;
 // HUD
-if(doneCount!==shownCount){shownCount=doneCount;hudAgents.textContent=`${AGENT_COUNT} agents live`;hudCount.textContent=`${doneCount} / ${layers.length} layers`;hudBar.style.transform=`scaleX(${doneCount/layers.length})`;}
+if(doneCount!==shownCount&&now>welcomeUntil){shownCount=doneCount;hudAgents.textContent=`${AGENT_COUNT} agents live`;hudCount.textContent=`${doneCount} / ${layers.length} layers`;hudBar.style.transform=`scaleX(${doneCount/layers.length})`;}
 if(allDoneAt&&now-allDoneAt>2600&&!tour)hud.classList.add('done');
 // Tour: auto-scroll, pausing while pieces on screen are still being built
 if(tour){
@@ -231,7 +234,7 @@ const fast=a.job||mode==='scan'||a.burst,k=1-Math.pow(fast?.8:.965,dt/16);
 const jx=a.job?0:Math.sin(now*.0011+a.phase)*.35,jy=a.job?0:Math.cos(now*.0013+a.phase)*.35;
 const px=a.x,py=a.y;a.x+=(a.tx-a.x)*k+jx;a.y+=(a.ty-a.y)*k+jy;
 const v=Math.hypot(a.x-px,a.y-py);if(a.burst&&v<1.5)a.burst=false;
-if(v>5&&now-a.lastPuff>(small?140:80)){a.lastPuff=now;puff(a);}
+if(!theatre&&v>5&&now-a.lastPuff>(small?140:80)){a.lastPuff=now;puff(a);}
 a.el.style.transform=`translate3d(${(a.x-2).toFixed(1)}px,${(a.y-2).toFixed(1)}px,0)`;
 const alpha=theatre?0:allDoneAt&&!tour?clamp(1-(now-allDoneAt-1200)/900):a.job||mode==='scan'||idleFor<3500?1:.4;
 if(Math.abs(alpha-a.alpha)>.01){a.alpha=alpha;a.el.style.opacity=alpha.toFixed(2);}

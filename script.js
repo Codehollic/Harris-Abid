@@ -25,10 +25,10 @@ function updateStudio(p,settled=false){
 const width=canvas.clientWidth,pw=canvasPortrait.offsetWidth,ph=canvasPortrait.offsetHeight,px=canvasPortrait.offsetLeft,py=canvasPortrait.offsetTop;
 const proofX=canvasProof.offsetLeft,proofY=canvasProof.offsetTop,proofW=canvasProof.offsetWidth;
 const titleX=canvasTitle.offsetLeft,titleY=canvasTitle.offsetTop,titleWidth=canvasTitle.offsetWidth,titleStyle=getComputedStyle(canvasTitle),fontSize=parseFloat(titleStyle.fontSize),lineHeight=parseFloat(titleStyle.lineHeight);
-const full='A stronger brand\nstarts here.',typed=settled?full:full.slice(0,Math.round(full.length*clamp(p/.23)));
+const full='10% lower ACoS.\nSmarter spend.',typed=settled?full:full.slice(0,Math.round(full.length*clamp(p/.23)));
 if(typed!==lastTyped){canvasTitle.textContent=typed||' ';lastTyped=typed;}
 const place=smooth((p-.25)/.18),resize=smooth((p-.46)/.20),proof=smooth((p-.73)/.19),handoff=smooth((p-.66)/.07);
-const scale=lerp(.69,1,resize),dx=lerp(18,0,place),dy=lerp(-18,0,place);
+const scale=lerp(.69,1,resize),dx=lerp(18,0,place)+drag.x,dy=lerp(-18,0,place)+drag.y;
 canvasPortrait.style.transform=`translate(${dx}px,${dy}px) scale(${scale})`;canvasPortrait.style.opacity=String(settled?1:place);
 canvasProof.style.transform=`translate(${lerp(-12,0,proof)}px,${lerp(30,0,proof)}px) scale(${lerp(.9,1,proof)})`;canvasProof.style.opacity=String(settled?1:proof);
 $('#resize-size').textContent=`${Math.round(pw*scale)} × ${Math.round(ph*scale)}`;
@@ -50,15 +50,26 @@ updateChrome(p,settled,step,{pw,ph,px,py,scale,dx,dy,proofX,proofY,proofW,proof,
 }
 
 // Workspace chrome around the studio canvas: layers, rulers, inspector, measurements and stepper.
-const chrome={tools:$$('.tool'),layers:$$('[data-layer]'),rx:$('.ruler-x i'),ry:$('.ruler-y i'),ix:$('#insp-x'),iy:$('#insp-y'),iw:$('#insp-w'),ih:$('#insp-h'),il:$('#insp-layer'),kl:$('#insp-kind-label'),k1:$('#insp-kind'),k2:$('#insp-kind-2'),con:$('#insp-con'),ct:$('#insp-con-text'),ad:$('#insp-agent-dot'),an:$('#insp-agent'),mv:$('.measure-v'),mh:$('.measure-h'),size:$('#artboard-size'),copy:$('.canvas-copy'),steps:$$('.build-steps li')};
+const chrome={app:$('.studio-canvas'),tools:$$('.tool'),layers:$$('[data-layer]'),rx:$('.ruler-x i'),ry:$('.ruler-y i'),ix:$('#insp-x'),iy:$('#insp-y'),iw:$('#insp-w'),ih:$('#insp-h'),il:$('#insp-layer'),kl:$('#insp-kind-label'),k1:$('#insp-kind'),k2:$('#insp-kind-2'),con:$('#insp-con'),ct:$('#insp-con-text'),ad:$('#insp-agent-dot'),an:$('#insp-agent'),mv:$('.measure-v'),mh:$('.measure-h'),size:$('#artboard-size'),copy:$('.canvas-copy'),steps:$$('.build-steps li')};
 const setText=(el,v)=>{if(el&&el.textContent!==v)el.textContent=v;};
 const AGENT={title:['Copy agent','#ff9f80'],portrait:['Layout agent','#4f8cff'],proof:['Layout agent','#4f8cff']};
 const CON={title:['Left · Top','left:5px;top:5px;width:12px;height:2px'],portrait:['Right · Top','right:5px;top:5px;width:12px;height:2px'],proof:['Left · Bottom','left:5px;bottom:5px;width:12px;height:2px'],frame:['Scale · Scale','left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;background:transparent;outline:1.5px solid #4f8cff']};
 let lastActive='';
+// Interactive canvas: jump to a step from the layers or stepper, and drag the portrait once it is built.
+const drag={x:0,y:0,on:false,sx:0,sy:0,ox:0,oy:0};
+const JUMP={frame:1,kicker:.12,title:.12,rule:.12,copy:.12,portrait:.36,measure:.6,proof:.86},STEP_AT=[.12,.36,.6,.86];
+function jumpTo(f){const stickyTop=innerWidth<=700?75:94,top=studio.getBoundingClientRect().top+scrollY;scrollTo({top:top-stickyTop+f*(studio.offsetHeight-innerHeight+stickyTop),behavior:reduced.matches?'instant':'smooth'});}
+$$('[data-jump]').forEach(b=>b.addEventListener('click',()=>jumpTo(JUMP[b.dataset.jump]??0)));
+$$('.build-steps li').forEach((li,i)=>{const go=()=>jumpTo(STEP_AT[i]);li.addEventListener('click',go);li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});
+const redraw=()=>{if(paused)updateStudio(1,true);};
+canvasPortrait.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||!(paused||studioProgress>.96))return;e.preventDefault();drag.on=true;drag.sx=e.clientX;drag.sy=e.clientY;drag.ox=drag.x;drag.oy=drag.y;canvasPortrait.setPointerCapture(e.pointerId);canvasPortrait.classList.add('is-dragging');redraw();});
+canvasPortrait.addEventListener('pointermove',e=>{if(!drag.on)return;drag.x=clamp(drag.ox+e.clientX-drag.sx,-canvasPortrait.offsetLeft+10,10);drag.y=clamp(drag.oy+e.clientY-drag.sy,-canvasPortrait.offsetTop+10,canvas.clientHeight-canvasPortrait.offsetTop-canvasPortrait.offsetHeight-10);redraw();});
+const release=()=>{if(!drag.on)return;drag.on=false;canvasPortrait.classList.remove('is-dragging');const fx=drag.x,fy=drag.y,t0=performance.now();(function back(now){const k=smooth((now-t0)/450);drag.x=fx*(1-k);drag.y=fy*(1-k);redraw();if(k<1)requestAnimationFrame(back);})(t0);};
+canvasPortrait.addEventListener('pointerup',release);canvasPortrait.addEventListener('pointercancel',release);
 function updateChrome(p,settled,step,g){
 if(!chrome.ix)return;
 const W=canvas.clientWidth,H=canvas.clientHeight,S=1280/Math.max(1,W),u=v=>String(Math.round(v*S));
-const done=settled||p>.96,active=done?'frame':step===0?'title':step===3?'proof':'portrait';
+const done=settled||p>.96,active=drag.on?'portrait':done?'frame':step===0?'title':step===3?'proof':'portrait';
 let box;
 if(active==='title')box={x:g.titleX,y:g.titleY,w:g.titleWidth,h:canvasTitle.offsetHeight};
 else if(active==='portrait')box={x:g.px+g.pw*(1-g.scale)+g.dx,y:g.py+g.dy,w:g.pw*g.scale,h:g.ph*g.scale};
@@ -69,11 +80,12 @@ const ox=canvas.offsetLeft-18,oy=canvas.offsetTop-18,band=active!=='frame';
 chrome.rx.style.cssText=band?`left:${ox+box.x}px;width:${box.w}px`:'width:0';chrome.ry.style.cssText=band?`top:${oy+box.y}px;height:${box.h}px`:'height:0';
 if(active==='title')setText(chrome.k2,`${u(g.fontSize)} / ${u(g.lineHeight)} · −1.8`);
 else if(active==='portrait')setText(chrome.k2,`Scale ${Math.round(g.scale*100)}% · Radius 3`);
+chrome.app.classList.toggle('is-done',done);
 if(active!==lastActive){lastActive=active;
-setText(chrome.il,{title:'Title',portrait:'Portrait',proof:'Proof / Ads dashboard',frame:'Hero / Desktop'}[active]);
-setText(chrome.kl,{title:'Typography',portrait:'Fill',proof:'Effects',frame:'Layout'}[active]);
-setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Image · Cover',proof:'Drop shadow · 0 14 34',frame:'Auto layout · 12 cols'}[active]);
-if(active==='proof')setText(chrome.k2,'Radius 6 · Clip content');if(active==='frame')setText(chrome.k2,'Margin 32 · Gutter 24');
+setText(chrome.il,{title:'Title',portrait:'Portrait',proof:'Proof / Ads dashboard',frame:'Case / Managed PPC'}[active]);
+setText(chrome.kl,{title:'Typography',portrait:'Fill',proof:'Dashboard figures',frame:'Layout'}[active]);
+setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Image · Cover',proof:'ACoS 18.14% · ROAS 5.51',frame:'Auto layout · 12 cols'}[active]);
+if(active==='proof')setText(chrome.k2,'Lifetime account totals, historical');if(active==='frame')setText(chrome.k2,'Margin 32 · Gutter 24');
 const[ct,css]=CON[active];setText(chrome.ct,ct);chrome.con.style.cssText=css;
 const ag=AGENT[active]||['All agents','#88d9ba'];setText(chrome.an,ag[0]);chrome.ad.style.background=ag[1];
 chrome.tools.forEach(t=>t.classList.toggle('is-on',t.dataset.tool===(done?'move':['text','image','scale','move'][step])));
@@ -81,7 +93,7 @@ chrome.tools.forEach(t=>t.classList.toggle('is-on',t.dataset.tool===(done?'move'
 const pending={title:p<.01&&!settled,portrait:p<.25&&!settled,proof:p<.73&&!settled,measure:p<.46&&!settled};
 chrome.layers.forEach(li=>{const k=li.dataset.layer;li.classList.toggle('is-pending',!!pending[k]);li.classList.toggle('is-active',k===active||(k==='measure'&&!done&&p>=.46&&p<.73));li.style.setProperty('--lc',(AGENT[k]||AGENT.portrait)[1]);});
 // Redlines: portrait to artboard edge while refining, copy to proof while connecting
-const showH=!settled&&p>=.46&&p<.73,showV=!settled&&p>=.76&&p<.97&&(g.proofY+(1-g.proof)*30)-(chrome.copy.offsetTop+chrome.copy.offsetHeight)>6;
+const showH=drag.on||!settled&&p>=.46&&p<.73,showV=!settled&&p>=.76&&p<.97&&(g.proofY+(1-g.proof)*30)-(chrome.copy.offsetTop+chrome.copy.offsetHeight)>6;
 if(showH){const right=g.px+g.pw+g.dx,y=g.py+g.dy+g.ph*g.scale*.5;chrome.mh.style.cssText=`left:${right}px;top:${y}px;width:${Math.max(0,W-right)}px;opacity:1`;setText(chrome.mh.firstChild,u(W-right));}else chrome.mh.style.opacity='0';
 if(showV){const top=chrome.copy.offsetTop+chrome.copy.offsetHeight,bot=g.proofY+(1-g.proof)*30;chrome.mv.style.cssText=`left:${g.proofX+28}px;top:${top}px;height:${Math.max(0,bot-top)}px;opacity:1`;setText(chrome.mv.firstChild,u(bot-top));}else chrome.mv.style.opacity='0';
 const b=[0,.25,.46,.73,1];chrome.steps.forEach((li,i)=>li.style.setProperty('--fill',settled?1:clamp((p-b[i])/(b[i+1]-b[i])).toFixed(3)));

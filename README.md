@@ -2,19 +2,27 @@
 
 A complete personal-brand website with a scroll-driven build sequence, an editorial portrait, and real historical work screenshots from the supplied portfolio.
 
-## Easiest GitHub upload: one file
+## Publishing with GitHub Pages
 
-1. Extract this ZIP.
-2. Take `standalone.html` and rename it to **index.html**.
-3. Upload that file to the root of your GitHub repository.
-4. Enable GitHub Pages from your default branch and the root folder in repository **Settings → Pages**.
-5. Open the URL GitHub provides after deployment.
+This repository is ready to publish as it is: `index.html` at the root loads `styles.css`, `script.js`, `swarm.js` and the `assets/` folder, and `.nojekyll` tells GitHub Pages to serve the files untouched.
 
-`standalone.html` embeds the CSS, JavaScript, portrait, work screenshots, and screenshot viewer assets. No build, installation, API key, or backend is needed. Google Fonts are optional; system fonts are the fallback.
+1. In the repository, open **Settings → Pages**.
+2. Under **Build and deployment**, choose **Deploy from a branch**, then branch **main** and folder **/ (root)**.
+3. Save, wait a minute or two, and open the URL GitHub shows.
 
-## Editable project
+Keep the files where they are. Don't rename `standalone.html` to `index.html`; that would replace the editable page.
 
-Upload `index.html`, `styles.css`, `script.js`, `swarm.js`, `.nojekyll`, and the **assets/** folder together if you prefer separate, easily editable files. Keep their relative paths intact. The standalone file is generated from these files; it does not need to be uploaded alongside them.
+## Editing
+
+Edit `index.html`, `styles.css`, `script.js` (hero, studio canvas, marketplaces, interactions) and `swarm.js` (the agent build layer). Images live in `assets/`; the page uses the WebP versions, and the original PNGs are kept for reference.
+
+## Portable single file
+
+`standalone.html` is a one-file copy with the styles, scripts and images embedded, for sharing or offline viewing. It is generated, so don't edit it by hand. Rebuild it after any change:
+
+```
+python3 build_standalone.py
+```
 
 Open either HTML version locally to preview it. Images and contact links work without a server. Browser support for some features may vary; modern Chrome, Edge, Safari and Firefox are the intended targets.
 
@@ -23,6 +31,8 @@ Open either HTML version locally to preview it. Images and contact links work wi
 - On load, a swarm of small cursor "agents" (18 on desktop, 10 on phones) gathers around a scanning tile, then spreads across the page.
 - Every element starts as a wireframe placeholder (grey text bars, dashed boxes, X-boxes for images). As you scroll, an agent claims each piece: it drags out a coloured selection box with a live size badge, types text in behind a caret, snaps headings into place from a ghosted copy, and flashes alignment guides.
 - A control bar at the bottom shows agents and built layers, and has **Tour** (auto-scroll that waits for each screen to finish building), a **1×/2×/4×** speed switch and **×** to stop the effects. This layer lives in `swarm.js`.
+- Returning visitors (same browser) skip the scanning intro and get a 4× build. Nothing is sent anywhere; one flag is kept in the visitor's browser storage.
+- The studio canvas assembles a real case note (10% lower ACoS, +20% conversion) with the historical ads dashboard. Click a Layers row or a step to jump to it; once built, drag the portrait with a mouse and it snaps back.
 
 - A title is revealed with a caret, then its selection frame is adjusted.
 - The "Watch the pieces" studio is a design-tool workspace: toolbar, Layers panel, rulers, a labelled artboard, a live Inspector (position, size, type, constraints, editing agent) and pink spacing redlines, with a four-step progress stepper underneath.
