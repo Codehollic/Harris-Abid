@@ -244,3 +244,12 @@
 .shopify-logo{display:flex!important;align-items:center;gap:5px;color:#111;font:700 29px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px}.shopify-logo svg{width:30px;height:30px}
 .market-scene{height:480px;--s:.85}.market-scene .market-card{width:150px;height:176px}
 @media(max-width:700px){.market-scene{height:310px;--s:.42}.market-scene .market-card{width:76px;height:90px}.market-index{display:none}.market-face{border-radius:10px}.market-selection{border-radius:12px}}
+/* Hero agents image and sound toggle */
+.hero-portrait .portrait-frame{aspect-ratio:1/1;border-radius:4px}.hero-portrait picture{display:block;width:100%;height:100%}
+.sound-toggle{display:inline-flex;align-items:center;gap:8px;margin-right:18px;padding:7px 12px;border:1px solid #ffffff2e;border-radius:20px;background:transparent;color:var(--paper);font:500 11px var(--body);cursor:pointer;transition:border-color .3s,background .3s}
+.sound-toggle[hidden]{display:none}.sound-toggle:hover{border-color:#ffffff66}.sound-toggle.is-on{border-color:var(--orange);background:#ff693d1a}
+.eq{display:flex;align-items:flex-end;gap:2px;height:12px}.eq i{width:2px;height:4px;background:currentColor;border-radius:1px;transition:height .3s}
+.sound-toggle.is-on .eq i{background:var(--orange);animation:eq 1s ease-in-out infinite}.sound-toggle.is-on .eq i:nth-child(2){animation-delay:.2s}.sound-toggle.is-on .eq i:nth-child(3){animation-delay:.4s}.sound-toggle.is-on .eq i:nth-child(4){animation-delay:.1s}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+@media(max-width:700px){.sound-toggle{margin-right:10px;padding:6px 9px}.sound-label{display:none}}
+.hero-portrait .photo-label{display:none}

@@ -12,6 +12,10 @@ This repository is ready to publish as it is: `index.html` at the root loads `st
 
 Keep the files where they are. Don't rename `standalone.html` to `index.html`; that would replace the editable page.
 
+## Theme music (optional)
+
+Add a track you have the rights to (licensed or royalty-free) at `assets/audio/theme.mp3`. A **Sound** button then appears in the header. It never autoplays: when a visitor clicks it, the music fades in over about 3.5 seconds, and it fades out when they click again or switch tabs. Without the file the button stays hidden.
+
 ## Editing
 
 Edit `index.html`, `styles.css`, `script.js` (hero, studio canvas, marketplaces, interactions) and `swarm.js` (the agent build layer). Images live in `assets/`; the page uses the WebP versions, and the original PNGs are kept for reference.
