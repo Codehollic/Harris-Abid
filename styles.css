@@ -210,3 +210,37 @@
 @keyframes ca-float{50%{transform:translateY(-7px)}}@keyframes ca-twinkle{0%,100%{transform:scale(.6) rotate(0);opacity:.4}50%{transform:scale(1.1) rotate(45deg);opacity:1}}
 .effects-paused .canvas-art *{animation:none!important}
 .stage .canvas-proof img{object-position:center 88%}
+/* Systems in production */
+.systems{background:#0b0e0a;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.systems .section-heading p{max-width:430px;font-size:13px;line-height:1.7;color:#a9b89c}
+.systems h2 em{color:var(--orange)}
+.sys-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:10px 0 44px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sys-kpis>div{padding:22px 18px;border-left:1px solid var(--line)}.sys-kpis>div:first-child{border-left:0;padding-left:0}
+.sys-kpis strong{display:block;font:500 34px/1 var(--display);letter-spacing:-1.2px;color:var(--paper)}.sys-kpis>div:first-child strong{color:var(--orange)}
+.sys-kpis span{display:block;margin-top:8px;font-size:11px;line-height:1.45;color:#9fae92}
+.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.sys-card{background:#141913;border:1px solid #263022;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s,transform .3s}
+.sys-card:hover{border-color:#3d4a36;transform:translateY(-2px)}
+.sys-shot{display:block;width:100%;padding:0;border:0;border-bottom:1px solid #263022;background:#f4f5f1;cursor:zoom-in;text-align:left}
+.sys-shot img{display:block;width:100%;height:210px;object-fit:cover;object-position:top left}
+.sys-shot .evidence-toolbar{background:#e8ebe2;color:#4b5742}
+.sys-body{padding:22px 24px 24px;display:flex;flex-direction:column;gap:12px;flex:1}
+.sys-body h3{font:500 21px/1.2 var(--display);letter-spacing:-.5px;margin:0;color:var(--paper)}
+.sys-body>p{margin:0;font-size:13px;line-height:1.65;color:#a9b89c}
+.sys-body .sys-result{background:#1c2419;border-left:2px solid var(--orange);padding:11px 14px;border-radius:0 8px 8px 0;color:#e2eadb}
+.sys-result b{display:block;font:600 9px var(--body);letter-spacing:1.6px;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.sys-how{border-top:1px solid #263022;padding-top:10px}.sys-how summary{cursor:pointer;font-size:12px;font-weight:600;color:#dfe7d4;list-style:none;display:flex;align-items:center;gap:8px}.sys-how summary::-webkit-details-marker{display:none}
+.sys-how summary::before{content:'+';display:grid;place-items:center;width:18px;height:18px;border:1px solid #3d4a36;border-radius:50%;font-size:12px;color:var(--orange);transition:transform .25s}.sys-how[open] summary::before{transform:rotate(45deg)}
+.sys-how ol{margin:12px 0 0;padding-left:20px;font-size:12.5px;line-height:1.6;color:#a9b89c}.sys-how li{margin-bottom:6px}.sys-how li::marker{color:#6f8160}
+.sys-body .tags{margin-top:auto;padding-top:4px}.systems .tags span{border-color:#334030;color:#b9c6ad}
+.sys-principles{margin-top:48px;padding-top:26px;border-top:1px solid var(--line)}.sys-principles ol{list-style:none;padding:0;margin:16px 0 0;display:grid;grid-template-columns:repeat(6,1fr);gap:18px;counter-reset:pr}
+.sys-principles li{counter-increment:pr;font-size:12px;line-height:1.55;color:#9fae92}.sys-principles li::before{content:'0' counter(pr);display:block;font:500 10px var(--body);letter-spacing:1px;color:var(--orange);margin-bottom:8px}
+.sys-principles b{display:block;font:500 15px var(--display);color:var(--paper);margin-bottom:4px}
+.sys-note{margin:30px 0 0;font-size:10px;color:#6f8160}
+@media(max-width:1050px){.sys-kpis{grid-template-columns:repeat(3,1fr)}.sys-kpis>div:nth-child(4){border-left:0;padding-left:0}.sys-principles ol{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.sys-grid{grid-template-columns:1fr}.sys-kpis{grid-template-columns:1fr 1fr}.sys-kpis>div{border-left:0;padding:16px 0;border-top:1px solid var(--line)}.sys-kpis>div:nth-child(-n+2){border-top:0}.sys-kpis strong{font-size:28px}.sys-principles ol{grid-template-columns:1fr 1fr}.sys-shot img{height:170px}.sys-body{padding:18px}}
+/* Walmart and Shopify marks; eight-card marketplace layout */
+.walmart-logo{display:flex!important;align-items:center;gap:4px;color:#0071ce;font:700 31px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px}.walmart-logo svg{width:28px;height:28px}
+.shopify-logo{display:flex!important;align-items:center;gap:5px;color:#111;font:700 29px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px}.shopify-logo svg{width:30px;height:30px}
+.market-scene{height:480px;--s:.85}.market-scene .market-card{width:150px;height:176px}
+@media(max-width:700px){.market-scene{height:310px;--s:.42}.market-scene .market-card{width:76px;height:90px}.market-index{display:none}.market-face{border-radius:10px}.market-selection{border-radius:12px}}

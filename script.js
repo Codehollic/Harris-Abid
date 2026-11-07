@@ -100,19 +100,19 @@ const b=[0,.25,.46,.73,1];chrome.steps.forEach((li,i)=>li.style.setProperty('--f
 }
 // Marketplaces: deal into a deck, fan out, arrange one by one, then connect to the brand.
 const mk={scene:$('.market-scene'),cursor:$('.market-cursor'),label:$('.market-cursor span'),hub:$('.market-hub'),svg:$('.market-lines'),lines:$$('.market-lines path'),cx:0,cy:0,state:-1};
-const DECK_ROT=[-4,3,-2,5,-3,2];
+const DECK_ROT=[-4,3,-2,5,-3,2,-5,4];
 function updateMarket(p,settled=false){
 const N=marketCards.length,W=mk.scene.clientWidth,H=mk.scene.clientHeight,w=marketCards[0].offsetWidth,h=marketCards[0].offsetHeight;
-const gap=W<500?12:14,cols=6*w+5*gap<=W?6:3,rows=Math.ceil(N/cols),shift=-28,gridH=rows*h+(rows-1)*gap,hubY=gridH/2+shift+(W<500?30:38);
-const R=cols===6?560:W<500?230:320,step=cols===6?8:W<500?9:11,mid=(N-1)/2;
+const gap=W<500?10:14,cols=N*w+(N-1)*gap<=W?N:Math.ceil(N/2),rows=Math.ceil(N/cols),shift=-28,gridH=rows*h+(rows-1)*gap,hubY=gridH/2+shift+(W<500?30:38);
+const R=W<500?230:420,step=W<500?8:N>6?7:9,mid=(N-1)/2,dS=Math.min(.032,.16/N),aS=Math.min(.052,.25/N);
 let active=-1,phase;
 if(settled||p>=.86)phase=3;else if(p>=.5)phase=2;else if(p>=.27)phase=1;else phase=0;
 const poses=marketCards.map((card,i)=>{
-const deal=settled?1:smooth((p-i*.032)/.1),fan=settled?1:smooth((p-.27)/.2),arr=settled?1:smooth((p-.5-i*.052)/.1);
+const deal=settled?1:smooth((p-i*dS)/.1),fan=settled?1:smooth((p-.27)/.2),arr=settled?1:smooth((p-.5-i*aS)/.1);
 const ang=(i-mid)*step,rad=ang*Math.PI/180;
 const dX=(i-mid)*2,dY=-i*2.5+shift,fX=R*Math.sin(rad),fY=R*(1-Math.cos(rad))-24+shift;
 const col=i%cols,row=Math.floor(i/cols),sX=(col-(cols-1)/2)*(w+gap),sY=(row-(rows-1)/2)*(h+gap)+shift;
-let x=lerp(lerp(dX,fX,fan),sX,arr),y=lerp(lerp(dY,fY,fan),sY,arr),r=lerp(lerp(DECK_ROT[i],ang,fan),0,arr);
+let x=lerp(lerp(dX,fX,fan),sX,arr),y=lerp(lerp(dY,fY,fan),sY,arr),r=lerp(lerp(DECK_ROT[i%8],ang,fan),0,arr);
 x+=(1-deal)*Math.min(W*.4,420);y-=(1-deal)*36;r+=(1-deal)*14;
 const lift=Math.sin(Math.PI*arr),scale=1+lift*.06;
 if(phase===0&&deal>0&&deal<1)active=i;if(phase===2&&arr>0&&arr<1)active=i;
@@ -120,9 +120,9 @@ card.style.transform=`translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFix
 card.style.opacity=String(settled?1:clamp(deal*3));card.style.setProperty('--lift',lift.toFixed(3));
 card.style.zIndex=String(arr>0&&arr<1?40:phase>=2?10+i:i+1);
 return{x,y,r,scale,sX,sY};});
-if(phase===0&&active<0)active=Math.min(N-1,Math.max(0,Math.floor(p/.032)));
+if(phase===0&&active<0)active=Math.min(N-1,Math.max(0,Math.floor(p/dS)));
 if(phase===1)active=N-1;
-if(phase===2&&active<0)active=Math.min(N-1,Math.max(0,Math.floor((p-.5)/.052)));
+if(phase===2&&active<0)active=Math.min(N-1,Math.max(0,Math.floor((p-.5)/aS)));
 // Selection on the card being handled
 marketCards.forEach((card,i)=>{const on=!settled&&phase<3&&i===active&&p>.01;card.querySelector('.market-selection').style.opacity=on?'1':'0';
 if(on){const ps=poses[i];card.querySelector('.market-size').textContent=`${Math.round(w*ps.scale)} 脳 ${Math.round(h*ps.scale)} 路 ${Math.round(ps.r)}掳`;}});
@@ -139,7 +139,7 @@ const lbl=phase===0?'LAYOUT / DEAL':phase===1?'LAYOUT / FAN':phase===2?`LAYOUT /
 const c=settled?1:smooth((p-.86)/.1);mk.svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
 poses.forEach((ps,i)=>{const sx=W/2+ps.sX,sy=H/2+ps.sY+h/2,hx=W/2,hy=H/2+hubY,my=(sy+hy)/2;mk.lines[i].setAttribute('d',`M${sx.toFixed(1)} ${sy.toFixed(1)}C${sx.toFixed(1)} ${my.toFixed(1)} ${hx} ${my.toFixed(1)} ${hx} ${hy.toFixed(1)}`);mk.lines[i].style.strokeDashoffset=String(1-c);});
 mk.hub.style.transform=`translate(-50%,-50%) translate(0,${hubY.toFixed(1)}px) scale(${(.9+.1*c).toFixed(3)})`;mk.hub.style.opacity=String(c);
-const st=settled||p>.96?4:phase;if(st!==mk.state){mk.state=st;document.querySelector('#market-state').textContent=['DEALING THE CHANNELS','FANNING THEM OUT','ARRANGING EACH ONE','CONNECTING TO YOUR BRAND','SIX CHANNELS. ONE CONNECTED APPROACH.'][st];}
+const st=settled||p>.96?4:phase;if(st!==mk.state){mk.state=st;document.querySelector('#market-state').textContent=['DEALING THE CHANNELS','FANNING THEM OUT','ARRANGING EACH ONE','CONNECTING TO YOUR BRAND','EIGHT CHANNELS. ONE CONNECTED APPROACH.'][st];}
 document.querySelector('.market-track i').style.transform=`scaleX(${settled?1:p})`;
 }
 const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting&&entry.intersectionRatio>=.15){const idx=scenes.indexOf(entry.target);if(idx!==activeScene)stage(idx);}},{threshold:[.15,.3,.5],rootMargin:'-8% 0px -15% 0px'});scenes.forEach(s=>observer.observe(s));
@@ -170,7 +170,7 @@ automation:['04 / AUTOMATION','Give the team time back.','Map repetitive work 鈫
 const samples=all('[data-view]');
 function alignConnectors(){const vis=q('.system-visual'),svg=q('.operation-lines'),box=vis.getBoundingClientRect(),core=q('.system-core').getBoundingClientRect();if(!box.width||!box.height)return;svg.setAttribute('viewBox',`0 0 ${box.width.toFixed(1)} ${box.height.toFixed(1)}`);const cx=core.left+core.width/2-box.left,cy=core.top+core.height/2-box.top,cr=core.width/2+4;all('[data-operation]').forEach((b,i)=>{const r=b.getBoundingClientRect(),x=r.left+r.width/2-box.left,y=r.top+r.height/2-box.top,dx=cx-x,dy=cy-y,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,bend=(i%2?1:-1)*len*.16,mx=(x+cx)/2-uy*bend,my=(y+cy)/2+ux*bend,ex=cx-ux*cr,ey=cy-uy*cr,d=`M${x.toFixed(1)} ${y.toFixed(1)}Q${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`,on=b.getAttribute('aria-pressed')==='true';all('[data-connector="'+b.dataset.operation+'"]').forEach(p=>{p.setAttribute('d',d);p.classList.toggle('is-active',on);});});}
 // The quiet work: a live readout pings one system at a time and sends a burst of data to the core.
-(()=>{const ticks=[['ads','Adjusting bids'],['orders','Syncing inventory'],['catalog','Fixing a variation'],['automation','Weekly report sent'],['ads','Pruning search terms'],['catalog','Refreshing listing images'],['orders','Checking delivery times'],['automation','Flagging an exception']],names={catalog:'Catalog',orders:'Orders',ads:'Ads',automation:'Automation'},rm=matchMedia('(prefers-reduced-motion: reduce)');let n=0;
+(()=>{const ticks=[['automation','Account health posted 路 US + CA'],['ads','Adjusting bids'],['orders','Vendor files delivered 4/4'],['catalog','Buy Box check 路 17/17 held'],['automation','Escalation tracker updated'],['ads','Pruning search terms'],['orders','Reimbursement proof submitted'],['catalog','Fixing a variation']],names={catalog:'Catalog',orders:'Orders',ads:'Ads',automation:'Automation'},rm=matchMedia('(prefers-reduced-motion: reduce)');let n=0;
 setInterval(()=>{const vis=q('.system-visual'),text=q('#sv-ticker-text');if(!vis||!text||document.hidden||rm.matches||document.body.classList.contains('effects-paused'))return;const r=vis.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const[op,msg]=ticks[n++%ticks.length];text.classList.remove('in');void text.offsetWidth;text.textContent=`${msg} 路 ${names[op]}`;text.classList.add('in');const node=q(`[data-operation="${op}"]`);node.classList.add('is-pinged');setTimeout(()=>node.classList.remove('is-pinged'),1500);all(`.packets[data-connector="${op}"]`).forEach(p=>{p.classList.add('burst');setTimeout(()=>p.classList.remove('burst'),1500);});},2400);})();
 new ResizeObserver(alignConnectors).observe(q('.system-visual'));alignConnectors();
 
@@ -208,7 +208,7 @@ const notes=[
 ];
 samples.forEach((sample,i)=>sample.addEventListener('click',()=>{
 const host=q('#evidence-hotspots'),detail=q('#hotspot-detail');host.replaceChildren();detail.textContent='Select a numbered marker for review context.';
-notes[i].forEach(([x,y,title,copy],n)=>{const b=document.createElement('button');b.type='button';b.className='hotspot';b.textContent=n+1;b.style.left=x+'%';b.style.top=y+'%';b.setAttribute('aria-label',`${n+1}: ${title}`);b.setAttribute('aria-pressed','false');b.setAttribute('aria-controls','hotspot-detail');b.addEventListener('click',()=>{host.querySelectorAll('button').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));detail.replaceChildren();const heading=document.createElement('strong');heading.textContent=title;const text=document.createElement('p');text.textContent=copy;detail.append(heading,text);});host.append(b);});
+(notes[i]||[]).forEach(([x,y,title,copy],n)=>{const b=document.createElement('button');b.type='button';b.className='hotspot';b.textContent=n+1;b.style.left=x+'%';b.style.top=y+'%';b.setAttribute('aria-label',`${n+1}: ${title}`);b.setAttribute('aria-pressed','false');b.setAttribute('aria-controls','hotspot-detail');b.addEventListener('click',()=>{host.querySelectorAll('button').forEach(el=>el.setAttribute('aria-pressed',String(el===b)));detail.replaceChildren();const heading=document.createElement('strong');heading.textContent=title;const text=document.createElement('p');text.textContent=copy;detail.append(heading,text);});host.append(b);});
 }));
 const cue=q('#cursor-cue'),motion=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(pointer:fine)');
 const reset=()=>{cue.style.opacity='0';all('.button').forEach(b=>b.style.removeProperty('translate'));};
