@@ -195,3 +195,17 @@
 .effects-paused .market-cursor{display:none}
 .market-stage{overflow-x:clip}html,body{overflow-x:clip}
 .market-cursor.flip span{left:auto;right:8px;border-radius:4px 0 4px 4px}
+/* Content v2 */
+.hero-proof{font-size:11px;letter-spacing:.3px;color:#a9b99b;gap:18px;flex-wrap:wrap}.hero-proof span{display:flex;align-items:baseline;gap:8px}.hero-proof b{font:500 18px var(--display);letter-spacing:-.4px;color:var(--paper)}
+@media(max-width:700px){.hero-proof{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;font-size:10px;letter-spacing:0}.hero-proof span{flex-direction:column;gap:2px}.hero-proof b{font-size:17px}}
+.support-stats{grid-template-columns:repeat(4,1fr)}.support-stats p{grid-column:1/-1;text-align:left;padding-left:0}
+@media(max-width:700px){.support-stats{grid-template-columns:1fr 1fr}.support-stats p{padding-left:0}}
+.role-points{list-style:none;margin:0;padding:0;max-width:600px}.role-points li{position:relative;padding-left:18px;font-size:13px;line-height:1.6;color:#a9b89c;margin:0 0 8px}.role-points li::before{content:'';position:absolute;left:0;top:.72em;width:8px;height:1px;background:var(--orange)}
+.credentials small{display:block}.cred-id{margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px!important;color:#6f8160!important;overflow-wrap:anywhere;line-height:1.6}
+.contact-links{display:flex;flex-direction:column;align-items:flex-end;gap:14px}.contact-links .email-link{margin-top:0}.availability{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:500}.availability i{width:8px;height:8px;border-radius:50%;background:#1e7a3c;box-shadow:0 0 0 4px #1e7a3c33}
+@media(max-width:700px){.contact-links{align-items:flex-start;margin-top:32px}}
+.canvas-portrait{background:transparent}.canvas-art{display:block;width:100%;height:100%;border-radius:8px;overflow:hidden}
+.ca-float{animation:ca-float 4.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.ca-chip-a{animation:ca-float 3.6s ease-in-out infinite .4s}.ca-chip-b{animation:ca-float 4.8s ease-in-out infinite 1.1s}.ca-chip-c{animation:ca-float 4s ease-in-out infinite .7s}
+.ca-spark{transform-box:fill-box;transform-origin:center;animation:ca-twinkle 2.6s ease-in-out infinite}.ca-spark.s2{animation-delay:1.3s}
+@keyframes ca-float{50%{transform:translateY(-7px)}}@keyframes ca-twinkle{0%,100%{transform:scale(.6) rotate(0);opacity:.4}50%{transform:scale(1.1) rotate(45deg);opacity:1}}
+.effects-paused .canvas-art *{animation:none!important}

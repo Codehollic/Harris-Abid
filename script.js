@@ -79,12 +79,12 @@ setText(chrome.ix,u(box.x));setText(chrome.iy,u(box.y));setText(chrome.iw,u(box.
 const ox=canvas.offsetLeft-18,oy=canvas.offsetTop-18,band=active!=='frame';
 chrome.rx.style.cssText=band?`left:${ox+box.x}px;width:${box.w}px`:'width:0';chrome.ry.style.cssText=band?`top:${oy+box.y}px;height:${box.h}px`:'height:0';
 if(active==='title')setText(chrome.k2,`${u(g.fontSize)} / ${u(g.lineHeight)} · −1.8`);
-else if(active==='portrait')setText(chrome.k2,`Scale ${Math.round(g.scale*100)}% · Radius 3`);
+else if(active==='portrait')setText(chrome.k2,`Scale ${Math.round(g.scale*100)}% · Radius 6`);
 chrome.app.classList.toggle('is-done',done);
 if(active!==lastActive){lastActive=active;
-setText(chrome.il,{title:'Title',portrait:'Portrait',proof:'Proof / Ads dashboard',frame:'Case / Managed PPC'}[active]);
+setText(chrome.il,{title:'Title',portrait:'Product visual',proof:'Proof / Ads dashboard',frame:'Case / Managed PPC'}[active]);
 setText(chrome.kl,{title:'Typography',portrait:'Fill',proof:'Dashboard figures',frame:'Layout'}[active]);
-setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Image · Cover',proof:'ACoS 18.14% · ROAS 5.51',frame:'Auto layout · 12 cols'}[active]);
+setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Vector · 3 layers',proof:'ACoS 18.14% · ROAS 5.51',frame:'Auto layout · 12 cols'}[active]);
 if(active==='proof')setText(chrome.k2,'Lifetime account totals, historical');if(active==='frame')setText(chrome.k2,'Margin 32 · Gutter 24');
 const[ct,css]=CON[active];setText(chrome.ct,ct);chrome.con.style.cssText=css;
 const ag=AGENT[active]||['All agents','#88d9ba'];setText(chrome.an,ag[0]);chrome.ad.style.background=ag[1];
@@ -194,7 +194,7 @@ q('#project-problem').addEventListener('change',updateEnquiry);q('#project-conte
 all('[data-audience]').forEach(button=>button.addEventListener('click',()=>{
 const recruiter=button.dataset.audience==='recruiter';all('[data-audience]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
 q('#audience-path').innerHTML=recruiter?'<span>For hiring teams / experience, tools, and delivery.</span><a href="#experience">Experience & credentials <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a><a href="#capabilities">Tools & capabilities <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a>':'<span>For founders / connect the moving parts.</span><a href="#capabilities">Explore services <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a><a href="#work">Inspect the work <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a>';
-q('.intro p').textContent=recruiter?'I’m Harris Abid, an ecommerce operations specialist with 7+ years across catalog management, fulfillment, advertising, and reporting. Based in Pakistan, working remotely across time zones.':'I’m Harris Abid. I connect the details that turn an ecommerce business into a brand that runs better.';
+q('.intro p').textContent=recruiter?'I’m Harris Abid, an ecommerce operations specialist with 7+ years across catalog management, fulfillment, advertising, and reporting. Based in Jhelum, Pakistan, working remotely across time zones. Amazon Ads Foundations and Sponsored Ads Advanced certified.':'I’m Harris Abid. I connect the details that turn an ecommerce business into a brand that runs better.';
 const cta=q('.intro .button');cta.firstChild.textContent=recruiter?'Discuss an operations role ':'Let’s talk about your brand ';cta.href='#contact';q('#project-problem').value=recruiter?'hiring':'catalog';updateEnquiry();
 }));
 // Interpretive notes explain what to review; they do not assert unrecorded historical actions.
@@ -202,7 +202,9 @@ const notes=[
 [[22,24,'Catalog visibility','The inventory view puts listing status in one place. Review active and suppressed items before prioritizing fixes.'],[63,57,'Product-level review','Use listing and inventory details to investigate variations, availability, or backend issues. Original product redactions remain intact.']],
 [[24,22,'Spend and orders','Read cost alongside order volume when reviewing campaign efficiency. These are historical account totals, not results attributable solely to Harris.'],[72,22,'ACoS and ROAS','Compare efficiency measures with campaign goals before changing bids. This lifetime dashboard alone does not establish a before-and-after result.']],
 [[26,33,'Query demand','Search volume helps identify demand worth investigating. Masked query names are kept private.'],[69,53,'Coverage and impressions','Compare demand with impression coverage to identify terms for closer relevance and campaign review.']],
-[[23,34,'Daily performance','Monitor sales and advertising spend together to spot changes that merit investigation.'],[74,60,'Account health','Review health, compliance, and delivery indicators so exceptions can be escalated and tracked.']]
+[[23,34,'Daily performance','Monitor sales and advertising spend together to spot changes that merit investigation.'],[74,60,'Account health','Review health, compliance, and delivery indicators so exceptions can be escalated and tracked.']],
+[[30,40,'Five-week snapshot','1 November to 7 December 2023: 269 orders and $5,457 in ordered product sales.'],[72,72,'Year-on-year comparison','Blue is the selected period and red the same dates a year earlier, with units and sales running at roughly three times the prior level.']],
+[[22,30,'Case-by-case tracking','Each lost or damaged FBA unit is logged with its amount, so claims can be followed through. IDs and ASINs are masked.'],[45,92,'Recovered total','Cash reimbursed to the account for August 2023: $623.27.']]
 ];
 samples.forEach((sample,i)=>sample.addEventListener('click',()=>{
 const host=q('#evidence-hotspots'),detail=q('#hotspot-detail');host.replaceChildren();detail.textContent='Select a numbered marker for review context.';

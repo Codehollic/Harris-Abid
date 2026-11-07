@@ -35,7 +35,7 @@ Open either HTML version locally to preview it. Images and contact links work wi
 - Marketplaces: six cards (Amazon, Etsy, eBay, noon, Macy’s, Ulta) are dealt into a deck, fanned out, laid into a row one by one by a single cursor, then connected to a “Your brand” hub. Logos are styled text marks that identify each platform.
 - The Approach diagram is live: a spinning arc and tick ring around the brand core, pulse waves, satellites on the orbits, curved connectors with data flowing in, node cards with real figures, and a LIVE readout that pings one system at a time.
 - Returning visitors (same browser) skip the scanning intro and get a 4× build. Nothing is sent anywhere; one flag is kept in the visitor's browser storage.
-- The studio canvas assembles a real case note (10% lower ACoS, +20% conversion) with the historical ads dashboard. Click a Layers row or a step to jump to it; once built, drag the portrait with a mouse and it snaps back.
+- The studio canvas assembles a real case note (10% lower ACoS, +20% conversion) with the historical ads dashboard; the product visual is an inline SVG illustration rather than a photo. Click a Layers row or a step to jump to it; once built, drag the portrait with a mouse and it snaps back.
 
 - A title is revealed with a caret, then its selection frame is adjusted.
 - The "Watch the pieces" studio is a design-tool workspace: toolbar, Layers panel, rulers, a labelled artboard, a live Inspector (position, size, type, constraints, editing agent) and pink spacing redlines, with a four-step progress stepper underneath.
