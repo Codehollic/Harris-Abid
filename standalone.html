@@ -177,6 +177,31 @@
 .effects-paused .system-visual *,.effects-paused .system-visual *::before,.effects-paused .system-visual *::after{animation:none!important}
 .node{padding-right:20px}@media(max-width:700px){.node{padding-right:16px}}
 #swarm.finale .sw-tile{background:#151814;border-color:#151814;color:var(--orange);box-shadow:0 10px 30px #0005}
+/* Marketplaces v2: deal, fan, arrange, connect */
+.market-scene{height:360px;perspective:none;margin:26px 0 18px;--s:1}
+.market-orbit{display:none}.market-grid{inset:0;transform:none;opacity:.5;-webkit-mask:radial-gradient(ellipse at center,#000 30%,transparent 72%);mask:radial-gradient(ellipse at center,#000 30%,transparent 72%)}
+.market-scene .market-card{width:176px;height:206px;transform-style:flat;will-change:transform,opacity;--tool:#4f8cff}
+.market-face{border:1px solid #cfd6c5;border-radius:16px;background:linear-gradient(160deg,#fff 0%,#f7f7f1 100%);box-shadow:0 calc(6px + var(--lift,0) * 16px) calc(16px + var(--lift,0) * 24px) #23321d24,0 1px 0 #fff inset;gap:0;backface-visibility:visible}
+.market-index{top:14px;left:15px;font-size:calc(9px * var(--s));color:#7a8870}
+.market-service{bottom:14px;font-size:calc(10.5px * var(--s));color:#5c6a52;line-height:1.3}
+.market-scene .market-logo{scale:var(--s);margin:0}
+.market-scene .amazon-logo{font-size:38px;margin-bottom:10px}.market-scene .amazon-logo svg{width:100px;left:12px;bottom:-17px}
+.market-scene .etsy-logo{font-size:54px}.market-scene .ebay-logo{font-size:56px}
+.noon-logo span{display:block;background:#feee00;color:#111;font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1.5px;padding:10px 16px 12px;border-radius:10px}
+.macys-logo{display:flex!important;align-items:center;gap:4px;color:#e21a2c;font:700 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1.5px}.macys-logo svg{width:24px;height:24px;fill:#e21a2c}
+.ulta-logo{display:flex!important;flex-direction:column;align-items:center;color:#f26722;font:800 42px/1 Arial,Helvetica,sans-serif;letter-spacing:2px}.ulta-logo small{font-size:9px;letter-spacing:6px;margin-top:5px;color:#f26722;font-weight:700}
+.market-selection{inset:-6px;border-color:#4f8cff;border-radius:19px;transition:opacity .2s}.market-selection i{border-color:#4f8cff;border-radius:1px}
+.market-size{bottom:-24px;left:50%;transform:translateX(-50%);background:#4f8cff;color:#fff;font:600 9px/1 var(--body);padding:4px 6px;border-radius:3px}
+.market-lines{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}.market-lines path{fill:none;stroke:#925034;stroke-width:1.3;stroke-dasharray:1;stroke-dashoffset:1;opacity:.75}
+.market-hub{position:absolute;left:50%;top:50%;z-index:20;display:flex;align-items:center;gap:8px;background:#172014;color:#eef3e6;font:500 11px/1 var(--body);letter-spacing:.3px;padding:9px 14px;border-radius:20px;white-space:nowrap;opacity:0;box-shadow:0 10px 26px #17201433}.market-hub i{width:7px;height:7px;border-radius:50%;background:var(--orange)}
+.market-cursor{position:absolute;left:0;top:0;z-index:60;pointer-events:none;opacity:0;transition:opacity .3s}.market-cursor svg{width:18px;height:23px;display:block;fill:#4f8cff;stroke:#fff;stroke-width:1.2;filter:drop-shadow(0 2px 4px #0003)}.market-cursor span{position:absolute;left:13px;top:19px;background:#4f8cff;color:#fff;font:600 9px/1 var(--body);letter-spacing:.4px;padding:4px 7px;border-radius:0 4px 4px 4px;white-space:nowrap}
+.market-tool{display:none!important}
+@media(max-width:1379px){.market-scene .market-card{width:150px;height:176px}.market-scene{--s:.85}}
+@media(max-width:1149px){.market-scene{height:480px}}
+@media(max-width:700px){.market-scene .market-card{width:100px;height:118px}.market-scene{height:350px;--s:.56}.market-service{display:none}.market-index{top:9px;left:10px;font-size:7px}.market-face{border-radius:12px}.market-selection{border-radius:14px}.market-hub{font-size:10px;padding:8px 12px}.market-cursor span{font-size:8px}}
+.effects-paused .market-cursor{display:none}
+.market-stage{overflow-x:clip}html,body{overflow-x:clip}
+.market-cursor.flip span{left:auto;right:8px;border-radius:4px 0 4px 4px}
 </style>
 </head>
 <body>
@@ -210,14 +235,9 @@
 </div></section>
 <section class="market-stage" id="marketplaces" aria-labelledby="market-heading">
 <div class="market-sticky"><div class="market-heading"><div><span class="eyebrow">MARKETPLACES / DIFFERENT CHANNELS. CONNECTED WORK.</span><h2 id="market-heading">Put your brand<br><em>in the right places.</em></h2></div><div class="studio-actions"><span>Scroll to arrange ↓</span><a href="#approach">Skip animation →</a></div></div>
-<div class="market-scene" aria-label="Amazon, Etsy and eBay cards rotate, resize, stack, then spread out as you scroll.">
-<div class="market-grid" aria-hidden="true"></div><div class="market-orbit" aria-hidden="true"></div>
-<div class="market-card amazon-card" data-market="0"><div class="market-face"><span class="market-index">01 / MARKETPLACE</span><strong class="market-logo amazon-logo">amazon<svg viewBox="0 0 150 30" aria-hidden="true"><path d="M8 8Q65 39 132 8M116 6L134 7L128 21"/></svg></strong><span class="market-service">Catalog · Advertising · Operations</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div><div class="market-tool" aria-hidden="true"><svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22Z"/></svg><span>LAYOUT / ROTATE</span></div></div>
-<div class="market-card etsy-card" data-market="1"><div class="market-face"><span class="market-index">02 / MARKETPLACE</span><strong class="market-logo etsy-logo">Etsy</strong><span class="market-service">3 years · Listings & SEO</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div><div class="market-tool" aria-hidden="true"><svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22Z"/></svg><span>LAYOUT / SCALE</span></div></div>
-<div class="market-card ebay-card" data-market="2"><div class="market-face"><span class="market-index">03 / MARKETPLACE</span><strong class="market-logo ebay-logo"><span>e</span><span>b</span><span>a</span><span>y</span></strong><span class="market-service">Multichannel order workflows</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div><div class="market-tool" aria-hidden="true"><svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22Z"/></svg><span>LAYOUT / ALIGN</span></div></div>
-</div><div class="market-caption"><span id="market-state">DIFFERENT CHANNELS. ONE CONNECTED APPROACH.</span><span class="market-hint">ROTATE / RESIZE / STACK / CONNECT</span></div><div class="market-track" aria-hidden="true"><i></i></div><p class="market-disclosure">Marketplace experience, independently delivered. Brand names identify platforms; no affiliation or endorsement is implied.</p></div></section>
+<div class="market-scene" aria-label="Amazon, Etsy, eBay, noon, Macy’s and Ulta cards are dealt, fanned out, arranged in a row and connected to your brand as you scroll."><div class="market-grid" aria-hidden="true"></div><svg class="market-lines" aria-hidden="true"><path pathLength="1"/><path pathLength="1"/><path pathLength="1"/><path pathLength="1"/><path pathLength="1"/><path pathLength="1"/></svg><div class="market-card amazon-card" data-market="0"><div class="market-face"><span class="market-index">01 / MARKETPLACE</span><strong class="market-logo amazon-logo">amazon<svg viewBox="0 0 150 30" aria-hidden="true"><path d="M8 8Q65 39 132 8M116 6L134 7L128 21"/></svg></strong><span class="market-service">Catalog · Advertising · Operations</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div></div><div class="market-card etsy-card" data-market="1"><div class="market-face"><span class="market-index">02 / MARKETPLACE</span><strong class="market-logo etsy-logo">Etsy</strong><span class="market-service">3 years · Listings &amp; SEO</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div></div><div class="market-card ebay-card" data-market="2"><div class="market-face"><span class="market-index">03 / MARKETPLACE</span><strong class="market-logo ebay-logo"><span>e</span><span>b</span><span>a</span><span>y</span></strong><span class="market-service">Multichannel order workflows</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div></div><div class="market-card noon-card" data-market="3"><div class="market-face"><span class="market-index">04 / MARKETPLACE</span><strong class="market-logo noon-logo"><span>noon</span></strong><span class="market-service">Middle East marketplace</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div></div><div class="market-card macys-card" data-market="4"><div class="market-face"><span class="market-index">05 / MARKETPLACE</span><strong class="market-logo macys-logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.6l-6.3 3.6 1.5-7.1L1.8 9.2 9 8.4z"/></svg>macy’s</strong><span class="market-service">Department store marketplace</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div></div><div class="market-card ulta-card" data-market="5"><div class="market-face"><span class="market-index">06 / MARKETPLACE</span><strong class="market-logo ulta-logo">ULTA<small>BEAUTY</small></strong><span class="market-service">Beauty retail marketplace</span><div class="market-selection" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="market-size"></span></div></div></div><div class="market-hub" aria-hidden="true"><i></i>Your brand · one connected approach</div><div class="market-cursor" aria-hidden="true"><svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22Z"/></svg><span>LAYOUT / DEAL</span></div></div><div class="market-caption"><span id="market-state">DIFFERENT CHANNELS. ONE CONNECTED APPROACH.</span><span class="market-hint">DEAL / FAN / ARRANGE / CONNECT</span></div><div class="market-track" aria-hidden="true"><i></i></div><p class="market-disclosure">Marketplace experience, independently delivered. Brand names identify platforms; no affiliation or endorsement is implied.</p></div></section>
 
-<div class="platform-band"><span>BUILT FOR THE WAY YOU SELL</span><div>Amazon <i>✳</i> Shopify <i>✳</i> Etsy <i>✳</i> eBay <i>✳</i> Noon <i>✳</i> Macy’s</div></div>
+<div class="platform-band"><span>BUILT FOR THE WAY YOU SELL</span><div>Amazon <i>✳</i> Shopify <i>✳</i> Etsy <i>✳</i> eBay <i>✳</i> Noon <i>✳</i> Macy’s <i>✳</i> Ulta</div></div>
 <section id="approach" class="approach scene light" data-scene="Connecting the system">
 <div class="section-heading"><span class="eyebrow dark">01 / THE APPROACH</span><h2 data-build="0">Your brand is the story.<br><em>Operations make it real.</em></h2></div>
 <div class="approach-layout"><div class="system-visual" data-build="1" aria-label="Brand operations: catalog, orders, ads and automation connected around your brand"><svg class="operation-lines" aria-hidden="true"><path class="wire" data-connector="catalog"/><path class="packets" data-connector="catalog" pathLength="100"/><path class="wire" data-connector="orders"/><path class="packets" data-connector="orders" pathLength="100"/><path class="wire" data-connector="ads"/><path class="packets" data-connector="ads" pathLength="100"/><path class="wire" data-connector="automation"/><path class="packets" data-connector="automation" pathLength="100"/></svg><div class="sv-glow" aria-hidden="true"></div><div class="orbit orbit-one" aria-hidden="true"><span class="sat-track"><i></i></span></div><div class="orbit orbit-two" aria-hidden="true"><span class="sat-track slow"><i></i></span></div><div class="sv-pulse" aria-hidden="true"></div><div class="sv-pulse p2" aria-hidden="true"></div><div class="sv-ring ring-arc" aria-hidden="true"></div><div class="sv-ring ring-ticks" aria-hidden="true"></div><div class="system-core"><span>YOUR</span><strong>BRAND</strong><small>built to keep moving</small><em class="core-status"><i></i>4 systems in sync</em></div><button type="button" class="node node-a" data-operation="catalog" aria-controls="operation-detail" aria-pressed="true"><span class="node-ic" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10v8H3z M3 7h10 M6 4v3" /></svg></span><span class="node-txt"><span class="node-name"><b>01</b> Catalog</span><small>500+ listings</small></span><i class="node-led" aria-hidden="true"></i></button><button type="button" class="node node-b" data-operation="orders" aria-controls="operation-detail" aria-pressed="false"><span class="node-ic" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h8v6H2z M10 7h2.5L14 9v2h-4 M4.5 12.5a1 1 0 1 0 0 .01 M11.5 12.5a1 1 0 1 0 0 .01" /></svg></span><span class="node-txt"><span class="node-name"><b>02</b> Orders</span><small>98%+ on time</small></span><i class="node-led" aria-hidden="true"></i></button><button type="button" class="node node-c" data-operation="ads" aria-controls="operation-detail" aria-pressed="false"><span class="node-ic" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V9 M6.5 12V6 M10 12V8 M13.5 12V3.5" /></svg></span><span class="node-txt"><span class="node-name"><b>03</b> Ads</span><small>−10% ACoS</small></span><i class="node-led" aria-hidden="true"></i></button><button type="button" class="node node-d" data-operation="automation" aria-controls="operation-detail" aria-pressed="false"><span class="node-ic" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v2 M8 11.5v2 M2.5 8h2 M11.5 8h2 M4.2 4.2l1.4 1.4 M10.4 10.4l1.4 1.4 M8 6a2 2 0 1 0 0 4a2 2 0 1 0 0-4" /></svg></span><span class="node-txt"><span class="node-name"><b>04</b> Automation</span><small>−30% upkeep</small></span><i class="node-led" aria-hidden="true"></i></button><div class="sv-ticker" aria-hidden="true"><i></i><span class="sv-ticker-label">LIVE</span><span id="sv-ticker-text">Syncing inventory</span></div><span class="visual-caption">THE QUIET WORK BEHIND THE MOMENTUM.</span></div><div class="approach-copy"><p class="large-copy" data-build="2">A great product needs more than a place on a marketplace. It needs a system that supports every next step.</p><p>I bring 7+ years of ecommerce experience across catalog management, advertising, fulfillment, and reporting. My focus is practical: remove the bottlenecks, connect the tools, and give your brand more room to grow.</p><div id="operation-detail" class="operation-detail" aria-live="polite"><span class="mini-label">01 / CATALOG</span><h3>Make every listing work harder.</h3><p>Review catalog health → resolve variations and listing issues → monitor product visibility.</p><a href="#work" id="operation-proof">Explore catalog evidence <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a></div><div class="signature">Harris Abid <span>Marketplace operator. Systems thinker.</span></div></div></div>
@@ -352,25 +372,48 @@ if(showH){const right=g.px+g.pw+g.dx,y=g.py+g.dy+g.ph*g.scale*.5;chrome.mh.style
 if(showV){const top=chrome.copy.offsetTop+chrome.copy.offsetHeight,bot=g.proofY+(1-g.proof)*30;chrome.mv.style.cssText=`left:${g.proofX+28}px;top:${top}px;height:${Math.max(0,bot-top)}px;opacity:1`;setText(chrome.mv.firstChild,u(bot-top));}else chrome.mv.style.opacity='0';
 const b=[0,.25,.46,.73,1];chrome.steps.forEach((li,i)=>li.style.setProperty('--fill',settled?1:clamp((p-b[i])/(b[i+1]-b[i])).toFixed(3)));
 }
+// Marketplaces: deal into a deck, fan out, arrange one by one, then connect to the brand.
+const mk={scene:$('.market-scene'),cursor:$('.market-cursor'),label:$('.market-cursor span'),hub:$('.market-hub'),svg:$('.market-lines'),lines:$$('.market-lines path'),cx:0,cy:0,state:-1};
+const DECK_ROT=[-4,3,-2,5,-3,2];
 function updateMarket(p,settled=false){
-const mobile=innerWidth<=700,spread=mobile?Math.min(60,(market.clientWidth-220)/2):innerWidth<=900?205:260;
-const enter=smooth(p/.24),stack=smooth((p-.24)/.28),fan=smooth((p-.72)/.24);
-const active=p<.24?0:p<.48?1:p<.72?2:3;
-marketCards.forEach((card,i)=>{
-const n=i-1,local=smooth((p-i*.055)/.24);
-const x=settled?n*spread:lerp(lerp(n*spread*1.12,n*(mobile?20:42),stack),n*spread,fan);
-const y=settled?(mobile?n*100:Math.abs(n)*14):lerp(lerp((1-local)*65+n*15,n*48,stack),mobile?n*100:Math.abs(n)*14,fan);
-const rz=settled?n*(mobile?9:5):lerp(lerp(n*26+(1-local)*35,n*10,stack),n*(mobile?9:5),fan);
-const rx=settled?0:lerp(lerp(28*(1-enter),16,stack),0,fan),ry=settled?0:lerp((1-local)*-65+n*10,0,fan);
-const scale=settled?1:lerp(lerp(.6+.4*local,.88,stack),1,fan);
-card.style.transform=`translate(-50%,-50%) translate3d(${x}px,${y}px,${settled?0:i*18*stack*(1-fan)}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${scale})`;
-card.style.zIndex=String(i+1);card.style.opacity=String(settled?1:clamp(local*3));
-const selected=!settled&&p>.025&&p<.95&&(active===i||active===3);
-card.querySelector('.market-selection').style.opacity=selected?'1':'0';card.querySelector('.market-tool').style.opacity=selected?'1':'0';
-card.querySelector('.market-tool>span').textContent=active===0?'LAYOUT / ROTATE':active===1?'LAYOUT / RESIZE':active===2?'LAYOUT / STACK':'LAYOUT / ALIGN';
-card.querySelector('.market-size').textContent=`${Math.round(scale*100)}% / ${Math.round(rz)}°`;
-});
-const phase=settled||p>.96?4:active;if(phase!==lastMarket){document.querySelector('#market-state').textContent=['ROTATING INTO VIEW','FINDING THE RIGHT SCALE','STACKING THE CHANNELS','MAKING ROOM FOR EACH','DIFFERENT CHANNELS. ONE CONNECTED APPROACH.'][phase];lastMarket=phase;}
+const N=marketCards.length,W=mk.scene.clientWidth,H=mk.scene.clientHeight,w=marketCards[0].offsetWidth,h=marketCards[0].offsetHeight;
+const gap=W<500?12:14,cols=6*w+5*gap<=W?6:3,rows=Math.ceil(N/cols),shift=-28,gridH=rows*h+(rows-1)*gap,hubY=gridH/2+shift+(W<500?30:38);
+const R=cols===6?560:W<500?230:320,step=cols===6?8:W<500?9:11,mid=(N-1)/2;
+let active=-1,phase;
+if(settled||p>=.86)phase=3;else if(p>=.5)phase=2;else if(p>=.27)phase=1;else phase=0;
+const poses=marketCards.map((card,i)=>{
+const deal=settled?1:smooth((p-i*.032)/.1),fan=settled?1:smooth((p-.27)/.2),arr=settled?1:smooth((p-.5-i*.052)/.1);
+const ang=(i-mid)*step,rad=ang*Math.PI/180;
+const dX=(i-mid)*2,dY=-i*2.5+shift,fX=R*Math.sin(rad),fY=R*(1-Math.cos(rad))-24+shift;
+const col=i%cols,row=Math.floor(i/cols),sX=(col-(cols-1)/2)*(w+gap),sY=(row-(rows-1)/2)*(h+gap)+shift;
+let x=lerp(lerp(dX,fX,fan),sX,arr),y=lerp(lerp(dY,fY,fan),sY,arr),r=lerp(lerp(DECK_ROT[i],ang,fan),0,arr);
+x+=(1-deal)*Math.min(W*.4,420);y-=(1-deal)*36;r+=(1-deal)*14;
+const lift=Math.sin(Math.PI*arr),scale=1+lift*.06;
+if(phase===0&&deal>0&&deal<1)active=i;if(phase===2&&arr>0&&arr<1)active=i;
+card.style.transform=`translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${r.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+card.style.opacity=String(settled?1:clamp(deal*3));card.style.setProperty('--lift',lift.toFixed(3));
+card.style.zIndex=String(arr>0&&arr<1?40:phase>=2?10+i:i+1);
+return{x,y,r,scale,sX,sY};});
+if(phase===0&&active<0)active=Math.min(N-1,Math.max(0,Math.floor(p/.032)));
+if(phase===1)active=N-1;
+if(phase===2&&active<0)active=Math.min(N-1,Math.max(0,Math.floor((p-.5)/.052)));
+// Selection on the card being handled
+marketCards.forEach((card,i)=>{const on=!settled&&phase<3&&i===active&&p>.01;card.querySelector('.market-selection').style.opacity=on?'1':'0';
+if(on){const ps=poses[i];card.querySelector('.market-size').textContent=`${Math.round(w*ps.scale)} × ${Math.round(h*ps.scale)} · ${Math.round(ps.r)}°`;}});
+// One cursor does the work
+let tx=0,ty=hubY;
+if(phase<3&&active>=0){const ps=poses[active],rr=ps.r*Math.PI/180,ox=w*.42*ps.scale,oy=h*.42*ps.scale;tx=ps.x+ox*Math.cos(rr)-oy*Math.sin(rr);ty=ps.y+ox*Math.sin(rr)+oy*Math.cos(rr);}
+else{tx=mk.hub.offsetWidth*.42;ty=hubY+6;}
+if(!mk.ready){mk.cx=tx;mk.cy=ty;mk.ready=true;}
+mk.cx+=(tx-mk.cx)*.28;mk.cy+=(ty-mk.cy)*.28;
+mk.cursor.style.transform=`translate(${(W/2+mk.cx).toFixed(1)}px,${(H/2+mk.cy).toFixed(1)}px)`;
+mk.cursor.style.opacity=!settled&&p>.01&&p<.97?'1':'0';mk.cursor.classList.toggle('flip',W/2+mk.cx>W-120);
+const lbl=phase===0?'LAYOUT / DEAL':phase===1?'LAYOUT / FAN':phase===2?`LAYOUT / ARRANGE ${active+1}/${N}`:'CONNECT / BRAND';if(mk.label.textContent!==lbl)mk.label.textContent=lbl;
+// Connect every channel to the brand
+const c=settled?1:smooth((p-.86)/.1);mk.svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+poses.forEach((ps,i)=>{const sx=W/2+ps.sX,sy=H/2+ps.sY+h/2,hx=W/2,hy=H/2+hubY,my=(sy+hy)/2;mk.lines[i].setAttribute('d',`M${sx.toFixed(1)} ${sy.toFixed(1)}C${sx.toFixed(1)} ${my.toFixed(1)} ${hx} ${my.toFixed(1)} ${hx} ${hy.toFixed(1)}`);mk.lines[i].style.strokeDashoffset=String(1-c);});
+mk.hub.style.transform=`translate(-50%,-50%) translate(0,${hubY.toFixed(1)}px) scale(${(.9+.1*c).toFixed(3)})`;mk.hub.style.opacity=String(c);
+const st=settled||p>.96?4:phase;if(st!==mk.state){mk.state=st;document.querySelector('#market-state').textContent=['DEALING THE CHANNELS','FANNING THEM OUT','ARRANGING EACH ONE','CONNECTING TO YOUR BRAND','SIX CHANNELS. ONE CONNECTED APPROACH.'][st];}
 document.querySelector('.market-track i').style.transform=`scaleX(${settled?1:p})`;
 }
 const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting&&entry.intersectionRatio>=.15){const idx=scenes.indexOf(entry.target);if(idx!==activeScene)stage(idx);}},{threshold:[.15,.3,.5],rootMargin:'-8% 0px -15% 0px'});scenes.forEach(s=>observer.observe(s));
@@ -512,6 +555,9 @@ el.innerHTML=`<svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22L2 2Z" fill
 ov.append(el);
 return{el,svg:el.firstElementChild,color,x:innerWidth/2,y:innerHeight/2,tx:innerWidth/2,ty:innerHeight/2,job:null,lastPuff:0,phase:i*2.399,alpha:-1,gone:false,leaveAt:0,rot:0};
 });
+const hero={el:document.createElement('div'),x:0,y:0,alpha:0,seen:false,caret:document.querySelector('.type-caret'),sel:document.querySelector('.title-selection')};
+hero.el.className='sw-agent sw-hero';hero.el.style.setProperty('--c','#7fb2ff');hero.el.innerHTML='<svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22L2 2Z" fill="#7fb2ff" stroke="#0c0f0c" stroke-width="1.3" stroke-linejoin="round"/></svg><span>Copy</span>';
+ov.append(hero.el);
 body.append(ov);
 
 const hud=document.createElement('div');hud.id='swarm-hud';hud.setAttribute('role','region');hud.setAttribute('aria-label','Build animation controls');
@@ -698,6 +744,16 @@ if(innerHeight+scrollY>=document.documentElement.scrollHeight-2)setTour(false);
 }
 }
 
+// Hero headline cursor
+{let hx=null,hy=null,lbl='Copy';
+if(mode!=='scan'&&mode!=='finale'){
+if(hero.caret&&hero.caret.style.display==='block'){const r=hero.caret.getBoundingClientRect();if(r.height){hx=r.left+3;hy=r.top+r.height*.72;}}
+else if(hero.sel&&hero.sel.style.opacity==='1'){const r=hero.sel.getBoundingClientRect();if(r.width){hx=r.right-3;hy=r.bottom-3;lbl='Type / Scale';}}}
+if(hx!==null){if(!hero.seen){hero.x=hx-40;hero.y=hy+30;hero.seen=true;}const k=1-Math.pow(.7,dt/16);hero.x+=(hx-hero.x)*k;hero.y+=(hy-hero.y)*k;const sp=hero.el.lastChild;if(sp.textContent!==lbl)sp.textContent=lbl;}
+else hero.seen=false;
+const ha=hx!==null?1:Math.max(0,hero.alpha-dt/300);if(ha!==hero.alpha){hero.alpha=ha;hero.el.style.opacity=ha.toFixed(2);}
+hero.el.style.transform=`translate3d(${(hero.x-2).toFixed(1)}px,${(hero.y-2).toFixed(1)}px,0)`;}
+
 // Move agents (hidden while a scroll set-piece with its own cursors fills the screen)
 const Hh=innerHeight,fin=mode==='finale',theatre=mode==='run'&&theatres.some(s=>{const r=s.getBoundingClientRect();return r.top<Hh*.35&&r.bottom>Hh*.65;});
 agents.forEach((a,i)=>{
@@ -707,7 +763,7 @@ const px=a.x,py=a.y;a.x+=(a.tx-a.x)*k;a.y+=(a.ty-a.y)*k;
 const v=Math.hypot(a.x-px,a.y-py);if(a.burst&&v<1.5)a.burst=false;
 if(!theatre&&v>5&&now-a.lastPuff>(small?140:80)){a.lastPuff=now;puff(a);}
 const fade=a.job||mode==='scan'?1:a.leaveAt?clamp(1-(now-a.leaveAt)/380):fin?1:0;
-const alpha=fin?clamp(1-(t-FIN.spin)/(FIN.end-FIN.spin)):theatre?0:fade;
+const alpha=fin?clamp(1-(t-FIN.spin)/(FIN.end-FIN.spin)):theatre&&!a.job?0:fade;
 if(!fin&&!a.job&&mode!=='scan'&&a.leaveAt&&now-a.leaveAt>380){a.gone=true;a.leaveAt=0;}
 const s=fin?1.3:a.job||mode==='scan'?1:.55+.45*fade;
 a.el.style.transform=`translate3d(${(a.x-2).toFixed(1)}px,${(a.y-2).toFixed(1)}px,0) scale(${s.toFixed(3)})`;

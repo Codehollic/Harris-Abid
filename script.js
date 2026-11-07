@@ -98,25 +98,48 @@ if(showH){const right=g.px+g.pw+g.dx,y=g.py+g.dy+g.ph*g.scale*.5;chrome.mh.style
 if(showV){const top=chrome.copy.offsetTop+chrome.copy.offsetHeight,bot=g.proofY+(1-g.proof)*30;chrome.mv.style.cssText=`left:${g.proofX+28}px;top:${top}px;height:${Math.max(0,bot-top)}px;opacity:1`;setText(chrome.mv.firstChild,u(bot-top));}else chrome.mv.style.opacity='0';
 const b=[0,.25,.46,.73,1];chrome.steps.forEach((li,i)=>li.style.setProperty('--fill',settled?1:clamp((p-b[i])/(b[i+1]-b[i])).toFixed(3)));
 }
+// Marketplaces: deal into a deck, fan out, arrange one by one, then connect to the brand.
+const mk={scene:$('.market-scene'),cursor:$('.market-cursor'),label:$('.market-cursor span'),hub:$('.market-hub'),svg:$('.market-lines'),lines:$$('.market-lines path'),cx:0,cy:0,state:-1};
+const DECK_ROT=[-4,3,-2,5,-3,2];
 function updateMarket(p,settled=false){
-const mobile=innerWidth<=700,spread=mobile?Math.min(60,(market.clientWidth-220)/2):innerWidth<=900?205:260;
-const enter=smooth(p/.24),stack=smooth((p-.24)/.28),fan=smooth((p-.72)/.24);
-const active=p<.24?0:p<.48?1:p<.72?2:3;
-marketCards.forEach((card,i)=>{
-const n=i-1,local=smooth((p-i*.055)/.24);
-const x=settled?n*spread:lerp(lerp(n*spread*1.12,n*(mobile?20:42),stack),n*spread,fan);
-const y=settled?(mobile?n*100:Math.abs(n)*14):lerp(lerp((1-local)*65+n*15,n*48,stack),mobile?n*100:Math.abs(n)*14,fan);
-const rz=settled?n*(mobile?9:5):lerp(lerp(n*26+(1-local)*35,n*10,stack),n*(mobile?9:5),fan);
-const rx=settled?0:lerp(lerp(28*(1-enter),16,stack),0,fan),ry=settled?0:lerp((1-local)*-65+n*10,0,fan);
-const scale=settled?1:lerp(lerp(.6+.4*local,.88,stack),1,fan);
-card.style.transform=`translate(-50%,-50%) translate3d(${x}px,${y}px,${settled?0:i*18*stack*(1-fan)}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${scale})`;
-card.style.zIndex=String(i+1);card.style.opacity=String(settled?1:clamp(local*3));
-const selected=!settled&&p>.025&&p<.95&&(active===i||active===3);
-card.querySelector('.market-selection').style.opacity=selected?'1':'0';card.querySelector('.market-tool').style.opacity=selected?'1':'0';
-card.querySelector('.market-tool>span').textContent=active===0?'LAYOUT / ROTATE':active===1?'LAYOUT / RESIZE':active===2?'LAYOUT / STACK':'LAYOUT / ALIGN';
-card.querySelector('.market-size').textContent=`${Math.round(scale*100)}% / ${Math.round(rz)}°`;
-});
-const phase=settled||p>.96?4:active;if(phase!==lastMarket){document.querySelector('#market-state').textContent=['ROTATING INTO VIEW','FINDING THE RIGHT SCALE','STACKING THE CHANNELS','MAKING ROOM FOR EACH','DIFFERENT CHANNELS. ONE CONNECTED APPROACH.'][phase];lastMarket=phase;}
+const N=marketCards.length,W=mk.scene.clientWidth,H=mk.scene.clientHeight,w=marketCards[0].offsetWidth,h=marketCards[0].offsetHeight;
+const gap=W<500?12:14,cols=6*w+5*gap<=W?6:3,rows=Math.ceil(N/cols),shift=-28,gridH=rows*h+(rows-1)*gap,hubY=gridH/2+shift+(W<500?30:38);
+const R=cols===6?560:W<500?230:320,step=cols===6?8:W<500?9:11,mid=(N-1)/2;
+let active=-1,phase;
+if(settled||p>=.86)phase=3;else if(p>=.5)phase=2;else if(p>=.27)phase=1;else phase=0;
+const poses=marketCards.map((card,i)=>{
+const deal=settled?1:smooth((p-i*.032)/.1),fan=settled?1:smooth((p-.27)/.2),arr=settled?1:smooth((p-.5-i*.052)/.1);
+const ang=(i-mid)*step,rad=ang*Math.PI/180;
+const dX=(i-mid)*2,dY=-i*2.5+shift,fX=R*Math.sin(rad),fY=R*(1-Math.cos(rad))-24+shift;
+const col=i%cols,row=Math.floor(i/cols),sX=(col-(cols-1)/2)*(w+gap),sY=(row-(rows-1)/2)*(h+gap)+shift;
+let x=lerp(lerp(dX,fX,fan),sX,arr),y=lerp(lerp(dY,fY,fan),sY,arr),r=lerp(lerp(DECK_ROT[i],ang,fan),0,arr);
+x+=(1-deal)*Math.min(W*.4,420);y-=(1-deal)*36;r+=(1-deal)*14;
+const lift=Math.sin(Math.PI*arr),scale=1+lift*.06;
+if(phase===0&&deal>0&&deal<1)active=i;if(phase===2&&arr>0&&arr<1)active=i;
+card.style.transform=`translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${r.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+card.style.opacity=String(settled?1:clamp(deal*3));card.style.setProperty('--lift',lift.toFixed(3));
+card.style.zIndex=String(arr>0&&arr<1?40:phase>=2?10+i:i+1);
+return{x,y,r,scale,sX,sY};});
+if(phase===0&&active<0)active=Math.min(N-1,Math.max(0,Math.floor(p/.032)));
+if(phase===1)active=N-1;
+if(phase===2&&active<0)active=Math.min(N-1,Math.max(0,Math.floor((p-.5)/.052)));
+// Selection on the card being handled
+marketCards.forEach((card,i)=>{const on=!settled&&phase<3&&i===active&&p>.01;card.querySelector('.market-selection').style.opacity=on?'1':'0';
+if(on){const ps=poses[i];card.querySelector('.market-size').textContent=`${Math.round(w*ps.scale)} × ${Math.round(h*ps.scale)} · ${Math.round(ps.r)}°`;}});
+// One cursor does the work
+let tx=0,ty=hubY;
+if(phase<3&&active>=0){const ps=poses[active],rr=ps.r*Math.PI/180,ox=w*.42*ps.scale,oy=h*.42*ps.scale;tx=ps.x+ox*Math.cos(rr)-oy*Math.sin(rr);ty=ps.y+ox*Math.sin(rr)+oy*Math.cos(rr);}
+else{tx=mk.hub.offsetWidth*.42;ty=hubY+6;}
+if(!mk.ready){mk.cx=tx;mk.cy=ty;mk.ready=true;}
+mk.cx+=(tx-mk.cx)*.28;mk.cy+=(ty-mk.cy)*.28;
+mk.cursor.style.transform=`translate(${(W/2+mk.cx).toFixed(1)}px,${(H/2+mk.cy).toFixed(1)}px)`;
+mk.cursor.style.opacity=!settled&&p>.01&&p<.97?'1':'0';mk.cursor.classList.toggle('flip',W/2+mk.cx>W-120);
+const lbl=phase===0?'LAYOUT / DEAL':phase===1?'LAYOUT / FAN':phase===2?`LAYOUT / ARRANGE ${active+1}/${N}`:'CONNECT / BRAND';if(mk.label.textContent!==lbl)mk.label.textContent=lbl;
+// Connect every channel to the brand
+const c=settled?1:smooth((p-.86)/.1);mk.svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+poses.forEach((ps,i)=>{const sx=W/2+ps.sX,sy=H/2+ps.sY+h/2,hx=W/2,hy=H/2+hubY,my=(sy+hy)/2;mk.lines[i].setAttribute('d',`M${sx.toFixed(1)} ${sy.toFixed(1)}C${sx.toFixed(1)} ${my.toFixed(1)} ${hx} ${my.toFixed(1)} ${hx} ${hy.toFixed(1)}`);mk.lines[i].style.strokeDashoffset=String(1-c);});
+mk.hub.style.transform=`translate(-50%,-50%) translate(0,${hubY.toFixed(1)}px) scale(${(.9+.1*c).toFixed(3)})`;mk.hub.style.opacity=String(c);
+const st=settled||p>.96?4:phase;if(st!==mk.state){mk.state=st;document.querySelector('#market-state').textContent=['DEALING THE CHANNELS','FANNING THEM OUT','ARRANGING EACH ONE','CONNECTING TO YOUR BRAND','SIX CHANNELS. ONE CONNECTED APPROACH.'][st];}
 document.querySelector('.market-track i').style.transform=`scaleX(${settled?1:p})`;
 }
 const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting&&entry.intersectionRatio>=.15){const idx=scenes.indexOf(entry.target);if(idx!==activeScene)stage(idx);}},{threshold:[.15,.3,.5],rootMargin:'-8% 0px -15% 0px'});scenes.forEach(s=>observer.observe(s));
