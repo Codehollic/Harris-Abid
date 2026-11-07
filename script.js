@@ -222,18 +222,3 @@ addEventListener('blur',reset);document.addEventListener('pointerleave',reset);q
 const sync=()=>{const want=document.body.classList.contains('effects-paused')?still:anim;if(img.getAttribute('src')!==want)img.setAttribute('src',want);};
 new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});sync();})();
 
-// Optional theme music: hidden until assets/audio/theme.mp3 exists; never autoplays; fades in and out.
-(()=>{const btn=document.getElementById('sound-toggle'),audio=document.getElementById('theme-audio');if(!btn||!audio)return;
-const TARGET=.4,FADE_IN=3500,FADE_OUT=1200;let on=false,raf=0,ctx=null,gain=null;
-const reveal=()=>{if(audio.duration>0)btn.hidden=false;};if(audio.readyState>=1)reveal();else audio.addEventListener('loadedmetadata',reveal,{once:true});
-// Web Audio gain fades work on iOS, where media volume is fixed; file:// pages fall back to the volume property.
-function level(){return gain?gain.gain.value:audio.volume;}
-function setLevel(v){if(gain)gain.gain.value=v;else audio.volume=v;}
-function ensureGraph(){if(ctx||!/^https?:$/.test(location.protocol)||!window.AudioContext)return;try{ctx=new AudioContext();gain=ctx.createGain();gain.gain.value=0;ctx.createMediaElementSource(audio).connect(gain).connect(ctx.destination);}catch(e){ctx=null;gain=null;}}
-function ramp(to,ms,done){cancelAnimationFrame(raf);const from=level(),t0=performance.now();(function step(now){const k=Math.min(1,(now-t0)/ms),e=k*k*(3-2*k);setLevel(from+(to-from)*e);if(k<1)raf=requestAnimationFrame(step);else if(done)done();})(t0);}
-function set(v){on=v;btn.setAttribute('aria-pressed',String(v));btn.classList.toggle('is-on',v);btn.querySelector('.sound-label').textContent=v?'Sound on':'Sound';
-if(v){ensureGraph();if(ctx&&ctx.state==='suspended')ctx.resume();setLevel(0);audio.play().then(()=>ramp(TARGET,FADE_IN)).catch(()=>set(false));}
-else ramp(0,FADE_OUT,()=>audio.pause());}
-btn.addEventListener('click',()=>set(!on));
-document.addEventListener('visibilitychange',()=>{if(!on)return;if(document.hidden)ramp(0,400,()=>audio.pause());else audio.play().then(()=>ramp(TARGET,1500)).catch(()=>{});});
-})();

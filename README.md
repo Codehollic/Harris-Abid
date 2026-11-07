@@ -12,9 +12,12 @@ This repository is ready to publish as it is: `index.html` at the root loads `st
 
 Keep the files where they are. Don't rename `standalone.html` to `index.html`; that would replace the editable page.
 
-## Theme music (optional)
+## Search and sharing
 
-Add a track you have the rights to (licensed or royalty-free) at `assets/audio/theme.mp3`. A **Sound** button then appears in the header. It never autoplays: when a visitor clicks it, the music fades in over about 3.5 seconds, and it fades out when they click again or switch tabs. Without the file the button stays hidden.
+- The page is set up for `https://codehollic.github.io/Harris-Abid/`: canonical link, Open Graph and Twitter preview tags, JSON-LD (Person with job title, employer, certifications, education and LinkedIn), `robots.txt` and `sitemap.xml`.
+- If you move to a custom domain, replace that address in `index.html` (head tags and JSON-LD), `robots.txt` and `sitemap.xml`.
+- `assets/og-card.jpg` (1200×630) is the image shown when the link is shared on LinkedIn, WhatsApp or X.
+- Search crawlers and audit tools skip the build animation and see the finished page.
 
 ## Editing
 

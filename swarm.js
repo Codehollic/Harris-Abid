@@ -3,6 +3,8 @@
    reduced motion shows everything immediately. No data is collected. */
 (()=>{'use strict';
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+// Crawlers and audit tools get the finished page straight away.
+if(/bot|crawl|spider|slurp|lighthouse|pagespeed|facebookexternalhit|linkedinbot|embedly|preview/i.test(navigator.userAgent))return;
 if(reduced.matches||!('IntersectionObserver' in window)||!Element.prototype.animate)return;
 
 const html=document.documentElement,body=document.body;

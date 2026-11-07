@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://codehollic.github.io/Harris-Abid/sitemap.xml
