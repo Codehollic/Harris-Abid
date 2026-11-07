@@ -209,3 +209,4 @@
 .ca-spark{transform-box:fill-box;transform-origin:center;animation:ca-twinkle 2.6s ease-in-out infinite}.ca-spark.s2{animation-delay:1.3s}
 @keyframes ca-float{50%{transform:translateY(-7px)}}@keyframes ca-twinkle{0%,100%{transform:scale(.6) rotate(0);opacity:.4}50%{transform:scale(1.1) rotate(45deg);opacity:1}}
 .effects-paused .canvas-art *{animation:none!important}
+.stage .canvas-proof img{object-position:center 88%}

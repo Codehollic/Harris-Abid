@@ -25,7 +25,7 @@ function updateStudio(p,settled=false){
 const width=canvas.clientWidth,pw=canvasPortrait.offsetWidth,ph=canvasPortrait.offsetHeight,px=canvasPortrait.offsetLeft,py=canvasPortrait.offsetTop;
 const proofX=canvasProof.offsetLeft,proofY=canvasProof.offsetTop,proofW=canvasProof.offsetWidth;
 const titleX=canvasTitle.offsetLeft,titleY=canvasTitle.offsetTop,titleWidth=canvasTitle.offsetWidth,titleStyle=getComputedStyle(canvasTitle),fontSize=parseFloat(titleStyle.fontSize),lineHeight=parseFloat(titleStyle.lineHeight);
-const full='10% lower ACoS.\nSmarter spend.',typed=settled?full:full.slice(0,Math.round(full.length*clamp(p/.23)));
+const full='Nearly 3× sales.\nSame season.',typed=settled?full:full.slice(0,Math.round(full.length*clamp(p/.23)));
 if(typed!==lastTyped){canvasTitle.textContent=typed||' ';lastTyped=typed;}
 const place=smooth((p-.25)/.18),resize=smooth((p-.46)/.20),proof=smooth((p-.73)/.19),handoff=smooth((p-.66)/.07);
 const scale=lerp(.69,1,resize),dx=lerp(18,0,place)+drag.x,dy=lerp(-18,0,place)+drag.y;
@@ -82,10 +82,10 @@ if(active==='title')setText(chrome.k2,`${u(g.fontSize)} / ${u(g.lineHeight)} · 
 else if(active==='portrait')setText(chrome.k2,`Scale ${Math.round(g.scale*100)}% · Radius 6`);
 chrome.app.classList.toggle('is-done',done);
 if(active!==lastActive){lastActive=active;
-setText(chrome.il,{title:'Title',portrait:'Product visual',proof:'Proof / Ads dashboard',frame:'Case / Managed PPC'}[active]);
+setText(chrome.il,{title:'Title',portrait:'Product visual',proof:'Proof / Sales dashboard',frame:'Case / Sales growth'}[active]);
 setText(chrome.kl,{title:'Typography',portrait:'Fill',proof:'Dashboard figures',frame:'Layout'}[active]);
-setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Vector · 3 layers',proof:'ACoS 18.14% · ROAS 5.51',frame:'Auto layout · 12 cols'}[active]);
-if(active==='proof')setText(chrome.k2,'Lifetime account totals, historical');if(active==='frame')setText(chrome.k2,'Margin 32 · Gutter 24');
+setText(chrome.k1,{title:'Space Grotesk · Medium',portrait:'Vector · 3 layers',proof:'$5,457 in 5 weeks · 269 orders',frame:'Auto layout · 12 cols'}[active]);
+if(active==='proof')setText(chrome.k2,'≈3× the same dates last year');if(active==='frame')setText(chrome.k2,'Margin 32 · Gutter 24');
 const[ct,css]=CON[active];setText(chrome.ct,ct);chrome.con.style.cssText=css;
 const ag=AGENT[active]||['All agents','#88d9ba'];setText(chrome.an,ag[0]);chrome.ad.style.background=ag[1];
 chrome.tools.forEach(t=>t.classList.toggle('is-on',t.dataset.tool===(done?'move':['text','image','scale','move'][step])));
