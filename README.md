@@ -2,7 +2,11 @@
 
 A complete personal-brand website with a scroll-driven build sequence, an editorial portrait, and real historical work screenshots from the supplied portfolio.
 
-## Publishing with GitHub Pages
+## Publishing
+
+The live site is https://harris-abid.harrisbinabid2152.workers.dev/ (Cloudflare). The notes below cover GitHub Pages as an alternative host.
+
+### GitHub Pages (alternative)
 
 This repository is ready to publish as it is: `index.html` at the root loads `styles.css`, `script.js`, `swarm.js` and the `assets/` folder, and `.nojekyll` tells GitHub Pages to serve the files untouched.
 
@@ -14,7 +18,7 @@ Keep the files where they are. Don't rename `standalone.html` to `index.html`; t
 
 ## Search and sharing
 
-- The page is set up for `https://codehollic.github.io/Harris-Abid/`: canonical link, Open Graph and Twitter preview tags, JSON-LD (Person with job title, employer, certifications, education and LinkedIn), `robots.txt` and `sitemap.xml`.
+- The page is set up for `https://harris-abid.harrisbinabid2152.workers.dev/` (Cloudflare): canonical link, Open Graph and Twitter preview tags, JSON-LD (Person with job title, employer, certifications, education and LinkedIn), `robots.txt` and `sitemap.xml`.
 - If you move to a custom domain, replace that address in `index.html` (head tags and JSON-LD), `robots.txt` and `sitemap.xml`.
 - `assets/og-card.jpg` (1200×630) is the image shown when the link is shared on LinkedIn, WhatsApp or X.
 - Search crawlers and audit tools skip the build animation and see the finished page.
