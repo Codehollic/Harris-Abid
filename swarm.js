@@ -52,6 +52,8 @@ const L={el,kind:kindOf(el),card:el.matches('article,figure'),img:el.matches('fi
 layers.push(L);byEl.set(el,L);
 });
 if(!layers.length)return;
+// The hero image is the largest piece above the fold: build it first, during the scan.
+const prio=layers.find(L=>L.el.matches('.hero-portrait'));if(prio)prio.card=false;
 html.classList.add('swarm-on');
 
 /* ---------- Overlay, agents, HUD ---------- */
@@ -210,9 +212,12 @@ if(mode==='off'){requestAnimationFrame(frame);return;}
 const W=innerWidth,H=innerHeight,cx=W/2,cy=H/2;
 
 if(mode==='scan'){
-const p=clamp((now-scanStart)/1500);
+const p=clamp((now-scanStart)/650);
 hudBar.style.transform=`scaleX(${p})`;
-agents.forEach((a,i)=>{const ang=a.phase+now*.0017*(1+(i%3)*.35),rad=30+(i%4)*14+Math.sin(now*.004+i)*5;a.tx=cx+Math.cos(ang)*rad;a.ty=cy+Math.sin(ang)*rad*.8;});
+const sy=small?H*.72:cy;
+agents.forEach((a,i)=>{const ang=a.phase+now*.0017*(1+(i%3)*.35),rad=30+(i%4)*14+Math.sin(now*.004+i)*5;a.tx=cx+Math.cos(ang)*rad;a.ty=sy+Math.sin(ang)*rad*.8;});
+if(prio&&prio.state!=='done'&&now-scanStart>120){prio.rect=prio.el.getBoundingClientRect();if(prio.state==='wait'&&prio.rect.top<H&&prio.rect.bottom>0)claim(prio,now);}
+for(let i=jobs.length-1;i>=0;i--)runJob(jobs[i],now,1.4);
 if(p>=1){
 mode='run';html.classList.remove('swarm-scanning');ov.classList.remove('scanning');hud.classList.remove('scanning');
 agents.forEach(a=>{const ang=rand(0,Math.PI*2),d=rand(.25,.55)*Math.min(W,H);a.tx=cx+Math.cos(ang)*d*1.4;a.ty=cy+Math.sin(ang)*d;a.burst=true;a.leaveAt=now+450;});

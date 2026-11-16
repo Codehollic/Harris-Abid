@@ -1,0 +1,15 @@
+# Files in the repository that the public site does not need.
+.git
+.github
+README.md
+DESIGN_NOTES.md
+MOTION_REVIEW.md
+build_standalone.py
+standalone.html
+wrangler.jsonc
+assets/account-monitoring.png
+assets/advertising-performance.png
+assets/catalog-management.png
+assets/search-term-analysis.png
+assets/harris-editorial-portrait.webp
+assets/harris-editorial-portrait-800.webp

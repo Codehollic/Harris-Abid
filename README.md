@@ -23,6 +23,13 @@ Keep the files where they are. Don't rename `standalone.html` to `index.html`; t
 - `assets/og-card.jpg` (1200×630) is the image shown when the link is shared on LinkedIn, WhatsApp or X.
 - Search crawlers and audit tools skip the build animation and see the finished page.
 
+## Hosting files
+
+- `_headers`: security headers (content security policy, HSTS, no framing) and cache rules for `assets/`.
+- `.assetsignore`: keeps repository-only files (this README, notes, the build script, `standalone.html`, original PNGs) off the public site.
+- `404.html`: the not-found page. `favicon.svg`, `favicon.ico`, `favicon-96.png` and `manifest.webmanifest` are the site icons.
+- Fonts are self-hosted in `assets/fonts/` (DM Sans and Space Grotesk, both under the SIL Open Font License), so the page makes no third-party requests.
+
 ## Editing
 
 Edit `index.html`, `styles.css`, `script.js` (hero, studio canvas, marketplaces, interactions) and `swarm.js` (the agent build layer). Images live in `assets/`; the page uses the WebP versions, and the original PNGs are kept for reference.

@@ -13,6 +13,7 @@ const copyCursor=$('.cursor-copy'),layoutCursor=$('.cursor-layout'),arrow=$('.an
 let paused=reduced.matches,activeScene=0,lastTime=0,endAt=0,heroStart=performance.now(),until=performance.now()+5000;
 let pointer={x:innerWidth*.6,y:innerHeight*.55,seen:false},timers=[],lastTyped=null,lastStage=-1,studioProgress=0;
 const visited=new Set();
+let swarmOn=null; // the swarm layer replaces these five cursors; skip their per-frame work when it is active
 const roles=[['COPY','#a4c9ff'],['CATALOG','#ff9f80'],['GROWTH','#d5dc81'],['SYSTEMS','#88d9ba'],['QA','#c9b3f5']];
 const agents=roles.map(([name,color],i)=>{const el=document.createElement('div');el.className='agent';el.style.setProperty('--c',color);el.innerHTML=`<svg viewBox="0 0 20 25" fill="none"><path d="M2 2L17 12L10 14L7 22L2 2Z" fill="${color}" stroke="#101510" stroke-width="1.2" stroke-linejoin="round"/></svg><span>${name}</span>`;overlay.append(el);return{el,name,color,x:innerWidth*(.15+i*.16),y:innerHeight*.6,target:null,phase:i*1.7};});
 const clearTimers=()=>{timers.forEach(clearTimeout);timers=[];};
@@ -60,7 +61,7 @@ const drag={x:0,y:0,on:false,sx:0,sy:0,ox:0,oy:0};
 const JUMP={frame:1,kicker:.12,title:.12,rule:.12,copy:.12,portrait:.36,measure:.6,proof:.86},STEP_AT=[.12,.36,.6,.86];
 function jumpTo(f){const stickyTop=innerWidth<=700?75:94,top=studio.getBoundingClientRect().top+scrollY;scrollTo({top:top-stickyTop+f*(studio.offsetHeight-innerHeight+stickyTop),behavior:reduced.matches?'instant':'smooth'});}
 $$('[data-jump]').forEach(b=>b.addEventListener('click',()=>jumpTo(JUMP[b.dataset.jump]??0)));
-$$('.build-steps li').forEach((li,i)=>{const go=()=>jumpTo(STEP_AT[i]);li.addEventListener('click',go);li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});
+$$('.build-steps li').forEach((li,i)=>li.addEventListener('click',()=>jumpTo(STEP_AT[i])));
 const redraw=()=>{if(paused)updateStudio(1,true);};
 canvasPortrait.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||!(paused||studioProgress>.96))return;e.preventDefault();drag.on=true;drag.sx=e.clientX;drag.sy=e.clientY;drag.ox=drag.x;drag.oy=drag.y;canvasPortrait.setPointerCapture(e.pointerId);canvasPortrait.classList.add('is-dragging');redraw();});
 canvasPortrait.addEventListener('pointermove',e=>{if(!drag.on)return;drag.x=clamp(drag.ox+e.clientX-drag.sx,-canvasPortrait.offsetLeft+10,10);drag.y=clamp(drag.oy+e.clientY-drag.sy,-canvasPortrait.offsetTop+10,canvas.clientHeight-canvasPortrait.offsetTop-canvasPortrait.offsetHeight-10);redraw();});
@@ -149,7 +150,8 @@ if(!paused&&!document.hidden){const titleP=clamp((now-heroStart-100)/3000);const
 const mr=market.getBoundingClientRect(),mt=innerWidth<=700?75:94,mp=clamp((mt-mr.top)/Math.max(1,market.offsetHeight-innerHeight+mt)),marketActive=mr.top<innerHeight*.5&&mr.bottom>innerHeight*.5;marketProgress+=(mp-marketProgress)*(1-Math.exp(-dt/70));if(Math.abs(mp-marketProgress)<.0001)marketProgress=mp;if(mr.top<innerHeight&&mr.bottom>0)updateMarket(marketProgress);
 const sr=studio.getBoundingClientRect(),stickyTop=innerWidth<=700?75:94,sp=clamp((stickyTop-sr.top)/Math.max(1,studio.offsetHeight-innerHeight+stickyTop)),studioActive=sr.top<innerHeight*.3&&sr.bottom>innerHeight*.7;studioProgress+= (sp-studioProgress)*(1-Math.exp(-dt/70));if(Math.abs(sp-studioProgress)<.0001)studioProgress=sp;if(sr.top<innerHeight&&sr.bottom>0)updateStudio(studioProgress);
 if(progress>.94&&!endAt)endAt=now;if(progress<.84)endAt=0;const age=endAt?now-endAt:0,gather=!!endAt;const visible=now<until||gather;const fade=gather?clamp(1-Math.max(0,age-2000)/1000):visible?1:0;status.style.opacity=studioActive||marketActive?'0':String(fade);if(gather){status.querySelector('span').textContent='All the moving parts. Together.';status.querySelector('b').textContent=`${String(scenes.length).padStart(2,'0')} / ${String(scenes.length).padStart(2,'0')}`;}
-agents.forEach((a,i)=>{let alpha=studioActive||marketActive?0:fade,tx=a.x,ty=a.y;const r=a.target?.getBoundingClientRect();if(gather){const anchor=fine.matches&&pointer.seen?pointer:{x:innerWidth*.62,y:innerHeight*.58};const radius=Math.max(8,65-age*.025);tx=anchor.x+Math.cos(i*1.4+now*.0015)*radius;ty=anchor.y+Math.sin(i*1.4+now*.0015)*radius+14;}else if(i===0&&caretPos){tx=caretPos.x;ty=caretPos.y;alpha=1;}else if(i===3&&showResize){const b=title.getBoundingClientRect();tx=b.right+10;ty=b.bottom+10;alpha=1;}else if(r){tx=r.left+r.width*(.12+(i*.193)%.8)+Math.sin(now*.001+a.phase)*20;ty=r.top+Math.min(r.height*.5,110)+Math.cos(now*.0013+a.phase)*15;if(r.bottom<95||r.top>innerHeight-30)alpha=0;}else alpha=0;
+if(swarmOn===null&&now-heroStart>400)swarmOn=document.documentElement.classList.contains('swarm-on');
+if(!swarmOn)agents.forEach((a,i)=>{let alpha=studioActive||marketActive?0:fade,tx=a.x,ty=a.y;const r=a.target?.getBoundingClientRect();if(gather){const anchor=fine.matches&&pointer.seen?pointer:{x:innerWidth*.62,y:innerHeight*.58};const radius=Math.max(8,65-age*.025);tx=anchor.x+Math.cos(i*1.4+now*.0015)*radius;ty=anchor.y+Math.sin(i*1.4+now*.0015)*radius+14;}else if(i===0&&caretPos){tx=caretPos.x;ty=caretPos.y;alpha=1;}else if(i===3&&showResize){const b=title.getBoundingClientRect();tx=b.right+10;ty=b.bottom+10;alpha=1;}else if(r){tx=r.left+r.width*(.12+(i*.193)%.8)+Math.sin(now*.001+a.phase)*20;ty=r.top+Math.min(r.height*.5,110)+Math.cos(now*.0013+a.phase)*15;if(r.bottom<95||r.top>innerHeight-30)alpha=0;}else alpha=0;
 tx=clamp(tx,12,innerWidth-75);ty=clamp(ty,100,innerHeight-45);const ease=1-Math.pow(.90,dt/16);a.x+=(tx-a.x)*ease;a.y+=(ty-a.y)*ease;a.el.style.transform=`translate3d(${a.x.toFixed(1)}px,${a.y.toFixed(1)}px,0)`;a.el.style.opacity=String(alpha);a.el.querySelector('span').style.opacity=gather?'0':'1';});}
 if(!document.hidden)requestAnimationFrame(animate);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastTime=performance.now();requestAnimationFrame(animate);}});
@@ -217,8 +219,17 @@ all('.button').forEach(button=>{button.addEventListener('pointermove',e=>{if(e.p
 addEventListener('blur',reset);document.addEventListener('pointerleave',reset);q('#motion').addEventListener('click',reset);motion.addEventListener('change',reset);
 })();
 
-// Hero animation: show the finished still frame whenever effects are paused.
-(()=>{const img=document.getElementById('hero-image');if(!img)return;const anim=img.getAttribute('src'),still=img.dataset.still;
-const sync=()=>{const want=document.body.classList.contains('effects-paused')?still:anim;if(img.getAttribute('src')!==want)img.setAttribute('src',want);};
-new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});sync();})();
+// Hero image: paint a light still first, swap in the animation once the page has loaded,
+// and show the finished frame whenever effects are paused.
+(()=>{const img=document.getElementById('hero-image');if(!img)return;const first=img.getAttribute('src'),anim=img.dataset.anim,still=img.dataset.still;let ready=false;
+const sync=()=>{const want=document.body.classList.contains('effects-paused')?still:ready?anim:first;if(img.getAttribute('src')!==want)img.setAttribute('src',want);};
+new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});sync();
+const load=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const pre=new Image();pre.onload=()=>{ready=true;sync();};pre.src=anim;};
+if(document.readyState==='complete')load();else addEventListener('load',load,{once:true});})();
+
+// Header navigation shows which section is in view.
+(()=>{const links=[...document.querySelectorAll('.header nav a[href^="#"]')],map=new Map(links.map(a=>[document.querySelector(a.getAttribute('href')),a]));map.delete(null);if(!map.size||!('IntersectionObserver' in window))return;
+const seen=new Set(),order=[...map.keys()];
+const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target));const cur=order.filter(s=>seen.has(s)).pop();links.forEach(a=>a.toggleAttribute('aria-current',false));if(cur)map.get(cur).setAttribute('aria-current','true');},{rootMargin:'-45% 0px -50% 0px'});
+order.forEach(s=>io.observe(s));})();
 
