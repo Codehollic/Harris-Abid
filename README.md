@@ -23,6 +23,14 @@ Keep the files where they are. Don't rename `standalone.html` to `index.html`; t
 - `assets/og-card.jpg` (1200×630) is the image shown when the link is shared on LinkedIn, WhatsApp or X.
 - Search crawlers and audit tools skip the build animation and see the finished page.
 
+## Funnel and polish
+
+- **Two views.** The hero switch reorders the page: founders get the default order; hiring teams get Experience, Systems, Impact and Work first. Share `?view=hiring` to open the hiring view directly (useful on a CV).
+- **Calls to action.** A mid-page prompt after Systems, a sticky contact bar on phones (after the hero, hidden at the contact section), and a "three fixes for your storefront" offer.
+- **Contact form.** It opens a prefilled email draft by default. To send messages straight to your inbox, create a free access key at web3forms.com and paste it into `FORM_KEY` near the contact-form code in `script.js`; name and email fields then appear automatically.
+- **Summary card.** Slides in once per visitor after 60% of the page or two opened case studies; dismissible, never on load.
+- **Motion.** Full cursor build for the header and hero; calm fade-and-rise with one cursor below. Numbers count up, dark cards get a pointer spotlight, long menu jumps crossfade, and clicking the email address copies it.
+
 ## Hosting files
 
 - `_headers`: security headers (content security policy, HSTS, no framing) and cache rules for `assets/`.

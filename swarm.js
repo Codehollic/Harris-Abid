@@ -23,7 +23,7 @@ const SELECTORS=[
 '.header .wordmark','.header nav a','.header .nav-cta',
 'main .eyebrow','main .edition','main .mini-label','main h2','main h3','main p','main small','main label',
 'main figure','main figcaption','main .button','main .text-link','main .scroll-link','main .email-link',
-'.audience-switch','#audience-path','main select','main textarea','main article',
+'.audience-switch','#audience-path','main select','main textarea','main input','.mid-cta','main article',
 '.system-core','.node','.visual-caption','.signature','.evidence-image','.operation-detail',
 '.result>strong','.platform-band>span','.platform-band>div','.hero-grid>span','.credentials>div','main li',
 'footer .wordmark','footer>p','footer .motion-controls','footer small'
@@ -34,7 +34,7 @@ const TEXT_TAGS=new Set(['H3','P','SMALL','LABEL','FIGCAPTION','SPAN','B','STRON
 
 function kindOf(el){
 if(el.tagName==='H2')return 'head';
-if(el.matches('.button,select,textarea,.audience-switch,#audience-path,.operation-detail,.motion-controls'))return 'box';
+if(el.matches('.button,select,textarea,input,.audience-switch,#audience-path,.operation-detail,.motion-controls'))return 'box';
 if(TEXT_TAGS.has(el.tagName)||el.matches('.platform-band>div'))return 'text';
 return 'box';
 }
@@ -54,6 +54,9 @@ layers.push(L);byEl.set(el,L);
 if(!layers.length)return;
 // The hero image is the largest piece above the fold: build it first, during the scan.
 const prio=layers.find(L=>L.el.matches('.hero-portrait'));if(prio)prio.card=false;
+// Below the hero the build turns calm: pieces fade and rise in order, led by a single cursor.
+layers.forEach(L=>{L.calm=!L.el.closest('.header,#home');});
+const CALM_NAMES={build:'Studio',marketplaces:'Channels',approach:'Approach',work:'Evidence',impact:'Impact',systems:'Systems',capabilities:'Services',experience:'Experience',faq:'Answers',contact:'Contact'};
 html.classList.add('swarm-on');
 
 /* ---------- Overlay, agents, HUD ---------- */
@@ -72,6 +75,9 @@ return{el,svg:el.firstElementChild,color,x:innerWidth/2,y:innerHeight/2,tx:inner
 const hero={el:document.createElement('div'),x:0,y:0,alpha:0,seen:false,caret:document.querySelector('.type-caret'),sel:document.querySelector('.title-selection')};
 hero.el.className='sw-agent sw-hero';hero.el.style.setProperty('--c','#7fb2ff');hero.el.innerHTML='<svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22L2 2Z" fill="#7fb2ff" stroke="#0c0f0c" stroke-width="1.3" stroke-linejoin="round"/></svg><span>Copy</span>';
 ov.append(hero.el);
+const calm={el:document.createElement('div'),x:innerWidth/2,y:innerHeight,tx:0,ty:0,until:0,alpha:0,next:0,label:''};
+calm.el.className='sw-agent sw-calm';calm.el.style.setProperty('--c','#ff9f80');calm.el.style.opacity='0';calm.el.innerHTML='<svg viewBox="0 0 20 25"><path d="M2 2L17 12L10 14L7 22L2 2Z" fill="#ff9f80" stroke="#0c0f0c" stroke-width="1.3" stroke-linejoin="round"/></svg><span></span>';
+ov.append(calm.el);
 body.append(ov);
 
 const hud=document.createElement('div');hud.id='swarm-hud';hud.setAttribute('role','region');hud.setAttribute('aria-label','Build animation controls');
@@ -238,12 +244,17 @@ if(mode==='run'){
 const live=[];
 for(const L of layers){if(L.state!=='done'&&(L.inView||L.state==='build')){L.rect=L.el.getBoundingClientRect();live.push(L);}else if(L.ph){L.ph.style.opacity='0';}}
 // Claim visible work in document order
-const queue=live.filter(L=>L.state==='wait'&&L.inView&&L.rect.bottom>(L.fixed?0:70)&&L.rect.top<H-40);
+const queue=live.filter(L=>!L.calm&&L.state==='wait'&&L.inView&&L.rect.bottom>(L.fixed?0:70)&&L.rect.top<H-40);
+// Calm reveals: one piece at a time, quicker when a backlog builds up
+const calmQ=live.filter(L=>L.calm&&L.state==='wait'&&L.inView&&L.rect.bottom>60&&L.rect.top<H-50);
+if(calmQ.length&&now>=calm.next){const L=calmQ[0];L.state='done';doneCount++;L.el.classList.remove('sw-wait');L.el.classList.add('sw-rise');setTimeout(()=>L.el.classList.remove('sw-rise'),800);
+calm.next=now+Math.max(14,62/(1+calmQ.length/6))/speed;calm.tx=clamp(L.rect.left-4,8,W-70);calm.ty=clamp(L.rect.top+Math.min(L.rect.height*.5,22),90,H-50);calm.until=now+900;
+const sec=L.el.closest('section,footer'),name=sec?(CALM_NAMES[sec.id]||'Wrap-up'):'Wrap-up';if(name!==calm.label){calm.label=name;calm.el.lastChild.textContent=name;}}
 for(const L of queue){if(jobs.length>=MAX_ACTIVE)break;if(L.parent&&L.parent.state!=='done')continue;if(!claim(L,now))break;}
 const boost=1+queue.length/7;
 // Wireframe placeholders for pieces still waiting
 for(const L of live){
-if(L.state!=='wait'){if(L.ph)L.ph.style.opacity='0';continue;}
+if(L.state!=='wait'||L.calm){if(L.ph)L.ph.style.opacity='0';continue;}
 if(!L.ph){L.ph=makeEl('sw-ph '+(L.img?'b x':L.kind==='box'?'b':'t'));if(L.img)L.ph.innerHTML=`<b>${Math.round(L.rect.width)} × ${Math.round(L.rect.height)}</b>`;if(L.kind!=='box'){const cs=getComputedStyle(L.el);L.ph.style.setProperty('--lh',(parseFloat(cs.lineHeight)||parseFloat(cs.fontSize)*1.2)+'px');}}
 const r=L.rect;place(L.ph,r.left,r.top,r.width,r.height);L.ph.style.opacity='1';
 }
@@ -255,7 +266,7 @@ if(doneCount!==shownCount&&now>welcomeUntil){shownCount=doneCount;hudAgents.text
 if(finaleAt&&now-finaleAt>FIN.end+2200&&!tour)hud.classList.add('done');
 // Tour: auto-scroll, pausing while pieces on screen are still being built
 if(tour){
-const busy=queue.length+jobs.filter(j=>j.L.inView&&!j.L.el.closest('.header')).length;
+const busy=queue.length+calmQ.length+jobs.filter(j=>j.L.inView&&!j.L.el.closest('.header')).length;
 if(busy<=1){tourAcc+=(small?80:110)*speed*dt/1000;const step=Math.floor(tourAcc);if(step>=1){tourAcc-=step;scrollBy({top:step,behavior:'instant'});}}
 if(innerHeight+scrollY>=document.documentElement.scrollHeight-2)setTour(false);
 }
@@ -287,6 +298,10 @@ a.el.style.transform=`translate3d(${(a.x-2).toFixed(1)}px,${(a.y-2).toFixed(1)}p
 if(fin)a.svg.style.transform=`rotate(${a.rot.toFixed(1)}deg)`;
 if(Math.abs(alpha-a.alpha)>.01||alpha===0&&a.alpha!==0){a.alpha=alpha;a.el.style.opacity=alpha.toFixed(2);}
 });
+// The calm cursor
+{const show=mode==='run'&&!theatre&&now<calm.until,k=1-Math.pow(.84,dt/16);calm.x+=(calm.tx-calm.x)*k;calm.y+=(calm.ty-calm.y)*k;
+const a=show?Math.min(1,calm.alpha+dt/180):Math.max(0,calm.alpha-dt/320);if(a!==calm.alpha){calm.alpha=a;calm.el.style.opacity=a.toFixed(2);}
+if(a>0)calm.el.style.transform=`translate3d(${(calm.x-2).toFixed(1)}px,${(calm.y-2).toFixed(1)}px,0)`;}
 requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

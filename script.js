@@ -191,13 +191,38 @@ ads:['Let’s understand your advertising performance.','I’d like help reviewi
 automation:['Let’s reduce repetitive work.','I’d like help mapping manual work and improving reporting or automation workflows.'],
 hiring:['Let’s discuss your operations role.','I’d like to discuss an ecommerce operations opportunity, including responsibilities, tools, and working hours.']
 };
-function updateEnquiry(){const d=enquiry[q('#project-problem').value],context=q('#project-context').value.trim();q('#enquiry-summary').textContent=d[1];q('#enquiry-email').href='mailto:harrisbinabid2152@gmail.com?subject='+encodeURIComponent(d[0])+'&body='+encodeURIComponent('Hi Harris,\n\n'+d[1]+(context?'\n\nContext: '+context:'')+'\n\nBest,\n');}
-q('#project-problem').addEventListener('change',updateEnquiry);q('#project-context').addEventListener('input',updateEnquiry);updateEnquiry();
+// Contact form. Set FORM_KEY to a Web3Forms access key to send messages directly;
+// while it is empty the form opens a prefilled email draft instead.
+const FORM_KEY='',FORM_URL='https://api.web3forms.com/submit';
+let mailto='mailto:harrisbinabid2152@gmail.com';
+function updateEnquiry(){const d=enquiry[q('#project-problem').value],context=q('#project-context').value.trim(),link=q('#project-link').value.trim();q('#enquiry-summary').textContent=d[1];
+mailto='mailto:harrisbinabid2152@gmail.com?subject='+encodeURIComponent(d[0])+'&body='+encodeURIComponent('Hi Harris,\n\n'+d[1]+(link?'\n\nLink: '+link:'')+(context?'\n\nContext: '+context:'')+'\n\nBest,\n');}
+['change','input'].forEach(t=>q('#enquiry-form').addEventListener(t,updateEnquiry));updateEnquiry();
+if(FORM_KEY){q('.direct-fields').hidden=false;q('#enquiry-send-label').textContent='Send message';q('#enquiry-note').textContent='Goes straight to my inbox. I reply by email.';}
+q('#enquiry-form').addEventListener('submit',async e=>{e.preventDefault();const status=q('#enquiry-status'),f=e.target;
+if(!FORM_KEY){location.href=mailto;return;}
+if(f.botcheck.value)return;
+const email=f.email.value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){status.textContent='Please add an email address I can reply to.';f.email.focus();return;}
+const btn=q('#enquiry-send');btn.disabled=true;status.textContent='Sending…';
+try{const d=enquiry[f.topic.value],res=await fetch(FORM_URL,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:FORM_KEY,subject:d[0],from_name:f.name.value.trim()||'Website visitor',name:f.name.value.trim(),email,topic:f.topic.value,link:f.link.value.trim(),message:d[1]+(f.context.value.trim()?'\n\n'+f.context.value.trim():'')})});
+if(!res.ok)throw new Error(String(res.status));status.textContent='Sent. Thank you, I’ll reply by email.';f.context.value='';f.link.value='';}
+catch(err){status.innerHTML='That didn’t send. <a href="'+mailto.replace(/"/g,'&quot;')+'">Open an email draft instead</a>.';}
+btn.disabled=false;});
+// Each audience gets the page in the order that answers its questions first.
+const ORDER={founder:['#home','#build','#marketplaces','.platform-band','#approach','#work','#impact','#systems','#capabilities','#experience','#faq','#contact'],
+recruiter:['#home','#experience','#systems','#impact','#work','#capabilities','#approach','#build','#marketplaces','.platform-band','#faq','#contact']};
+const NAV={founder:['approach','work','impact','systems','experience'],recruiter:['experience','systems','impact','work','approach']};
+let audience='founder';
+function arrange(kind,instant){if(kind===audience)return;audience=kind;const main=q('#main'),nav=q('.header nav'),bar=q('#cta-bar-link');
+const apply=()=>{ORDER[kind].forEach(sel=>{const el=main.querySelector(':scope > '+sel);if(el)main.append(el);});NAV[kind].forEach(id=>{const a=nav.querySelector('a[href="#'+id+'"]');if(a)nav.append(a);});main.classList.remove('is-swapping');dispatchEvent(new Event('resize'));};
+if(bar)bar.textContent=kind==='recruiter'?'Discuss a role':'Let’s talk';
+try{sessionStorage.setItem('ha-audience',kind);}catch(e){}
+if(instant||matchMedia('(prefers-reduced-motion: reduce)').matches)apply();else{main.classList.add('is-swapping');setTimeout(apply,220);}}
 all('[data-audience]').forEach(button=>button.addEventListener('click',()=>{
 const recruiter=button.dataset.audience==='recruiter';all('[data-audience]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
 q('#audience-path').innerHTML=recruiter?'<span>For hiring teams / experience, tools, and delivery.</span><a href="#experience">Experience & credentials <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a><a href="#capabilities">Tools & capabilities <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a>':'<span>For founders / connect the moving parts.</span><a href="#capabilities">Explore services <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a><a href="#work">Inspect the work <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19L19 5M5 5H19V19" stroke="currentColor" stroke-width="1.5"/></svg></a>';
 q('.intro p').textContent=recruiter?'I’m Harris Abid, an ecommerce operations specialist with 7+ years across catalog management, fulfillment, advertising, and reporting. Based in Jhelum, Pakistan, working remotely across time zones. Amazon Ads Foundations and Sponsored Ads Advanced certified.':'I’m Harris Abid. I connect the details that turn an ecommerce business into a brand that runs better.';
-const cta=q('.intro .button');cta.firstChild.textContent=recruiter?'Discuss an operations role ':'Let’s talk about your brand ';cta.href='#contact';q('#project-problem').value=recruiter?'hiring':'catalog';updateEnquiry();
+const cta=q('.intro .button');cta.firstChild.textContent=recruiter?'Discuss an operations role ':'Get 3 fixes for your storefront ';arrange(recruiter?'recruiter':'founder');cta.href='#contact';q('#project-problem').value=recruiter?'hiring':'catalog';updateEnquiry();
 }));
 // Interpretive notes explain what to review; they do not assert unrecorded historical actions.
 const notes=[
@@ -233,3 +258,58 @@ const seen=new Set(),order=[...map.keys()];
 const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target));const cur=order.filter(s=>seen.has(s)).pop();links.forEach(a=>a.toggleAttribute('aria-current',false));if(cur)map.get(cur).setAttribute('aria-current','true');},{rootMargin:'-45% 0px -50% 0px'});
 order.forEach(s=>io.observe(s));})();
 
+
+// Conversion and polish layer: shared links, prefills, count-ups, spotlight, crossfade jumps,
+// the mobile contact bar, the summary card and the copy toast.
+(()=>{const q=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)'),paused=()=>document.body.classList.contains('effects-paused')||reduce.matches;
+const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
+
+// A shared link such as ?view=hiring opens the hiring view; the choice also lasts for the visit.
+let want=new URLSearchParams(location.search).get('view');
+if(!want){try{want=sessionStorage.getItem('ha-audience');}catch(e){}}
+if(want==='hiring'||want==='recruiter')q('[data-audience="recruiter"]')?.click();
+
+// Calls to action can preselect the topic in the contact form.
+all('[data-prefill]').forEach(a=>a.addEventListener('click',()=>{const sel=q('#project-problem');if(sel){sel.value=a.dataset.prefill;sel.dispatchEvent(new Event('change',{bubbles:true}));}}));
+
+// Toast, and copying the email address when it is clicked.
+const toast=q('#toast');let toastTimer=0;
+function say(text){if(!toast)return;toast.textContent=text;toast.classList.add('is-on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('is-on'),2200);}
+all('a.email-link[href^="mailto:"]').forEach(a=>a.addEventListener('click',()=>{const addr=a.getAttribute('href').slice(7).split('?')[0];if(navigator.clipboard)navigator.clipboard.writeText(addr).then(()=>say('Email address copied'),()=>{});}));
+
+// Numbers count up the first time they scroll into view.
+const counters=all('.sys-kpis strong,.result>strong,.support-stats strong,.hero-proof b');
+if('IntersectionObserver' in window&&counters.length){const fmt=new Intl.NumberFormat('en-US');
+const run=(el,tries=0)=>{if(el.closest('.sw-wait')&&tries<40){setTimeout(()=>run(el,tries+1),250);return;}const node=[...el.childNodes].find(n=>n.nodeType===3&&/\d/.test(n.nodeValue));if(!node)return;const m=node.nodeValue.match(/^(\D*)([\d,]+)(.*)$/s);if(!m)return;
+const[,pre,num,post]=m,target=parseInt(num.replace(/,/g,''),10),comma=num.includes(','),final=node.nodeValue;if(!(target>0)||paused())return;
+el.style.fontVariantNumeric='tabular-nums';const t0=performance.now(),dur=Math.min(1500,700+target*4);
+(function step(now){const k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3),v=Math.round(target*e);node.nodeValue=k<1?pre+(comma?fmt.format(v):v)+post:final;if(k<1)requestAnimationFrame(step);})(t0);};
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);setTimeout(()=>run(e.target),180);}}),{rootMargin:'0px 0px -12% 0px'});counters.forEach(c=>io.observe(c));}
+
+// Soft spotlight that follows the pointer across the dark cards.
+if(matchMedia('(hover: hover) and (pointer: fine)').matches)all('.sys-card,.result,.mid-cta').forEach(card=>{card.classList.add('spot');card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect();card.style.setProperty('--mx',(e.clientX-r.left)+'px');card.style.setProperty('--my',(e.clientY-r.top)+'px');});});
+
+// Long in-page jumps crossfade instead of flying past every section.
+const main=q('#main');
+document.addEventListener('click',e=>{const a=e.target.closest?.('a[href^="#"]');if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;const id=a.getAttribute('href');if(id.length<2)return;const target=document.getElementById(id.slice(1));if(!target||!main)return;
+const dist=Math.abs(target.getBoundingClientRect().top);if(dist<innerHeight*1.5||paused())return;e.preventDefault();
+main.classList.add('is-jumping');setTimeout(()=>{target.scrollIntoView({behavior:'instant',block:'start'});history.pushState(null,'',id);if(!target.hasAttribute('tabindex'))target.setAttribute('tabindex','-1');target.focus({preventScroll:true});requestAnimationFrame(()=>main.classList.remove('is-jumping'));},190);});
+
+// Mobile contact bar: appears after the hero, steps aside at the contact section.
+const bar=q('#cta-bar'),hero=q('#home'),contact=q('#contact');
+if(bar&&hero&&contact&&'IntersectionObserver' in window){let pastHero=false,atContact=false;bar.hidden=false;
+const sync=()=>{const on=pastHero&&!atContact;bar.classList.toggle('is-on',on);document.body.classList.toggle('cta-on',on);};
+new IntersectionObserver(([e])=>{pastHero=!e.isIntersecting&&e.boundingClientRect.top<0;sync();}).observe(hero);
+new IntersectionObserver(([e])=>{atContact=e.isIntersecting;sync();},{rootMargin:'0px 0px -20% 0px'}).observe(contact);}
+
+// Summary card: once per visitor, after real engagement, never over the contact section.
+const card=q('#summary-card');
+if(card&&!store.get('ha-summary-seen')){let opened=0,shown=false;
+const close=()=>{card.classList.remove('is-on');store.set('ha-summary-seen','1');setTimeout(()=>{card.hidden=true;},400);};
+const show=()=>{if(shown||q('#evidence-dialog')?.open)return;const c=contact?.getBoundingClientRect();if(c&&c.top<innerHeight)return;shown=true;card.hidden=false;requestAnimationFrame(()=>card.classList.add('is-on'));store.set('ha-summary-seen','1');};
+addEventListener('scroll',()=>{if(shown)return;const max=document.documentElement.scrollHeight-innerHeight;if(max>0&&scrollY/max>.6)show();},{passive:true});
+all('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(++opened>=2)q('#evidence-dialog')?.addEventListener('close',()=>setTimeout(show,500),{once:true});}));
+q('#summary-close').addEventListener('click',close);q('#summary-contact').addEventListener('click',close);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&shown&&card.classList.contains('is-on')&&!q('#evidence-dialog')?.open)close();});}
+})();
